@@ -1,7 +1,6 @@
 package com.agendalc.agendalc.security;
 
 
-import java.util.Arrays;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -13,7 +12,6 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
-import org.springframework.web.cors.CorsConfiguration;
 
 import com.agendalc.agendalc.security.filter.JwtValidationFilter;
 import com.agendalc.agendalc.utils.JwtUtils;
@@ -21,11 +19,6 @@ import com.agendalc.agendalc.utils.JwtUtils;
 @Configuration
 public class SpringSecurityConfig {
 
-    private final JwtUtils jwtUtils;
-
-    public SpringSecurityConfig(JwtUtils jwtUtils) {
-        this.jwtUtils = jwtUtils;
-    }
 
     @Bean
     AuthenticationManager authenticationManager(AuthenticationConfiguration authenticationConfiguration) throws Exception {
