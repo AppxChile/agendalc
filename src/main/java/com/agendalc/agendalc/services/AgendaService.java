@@ -1,6 +1,6 @@
 package com.agendalc.agendalc.services;
 
-import com.agendalc.agendalc.controllers.dto.AgendaRequest;
+import com.agendalc.agendalc.dto.AgendaRequest;
 import com.agendalc.agendalc.entities.Agenda;
 import com.agendalc.agendalc.entities.BloqueHorario;
 import com.agendalc.agendalc.entities.Tramite;

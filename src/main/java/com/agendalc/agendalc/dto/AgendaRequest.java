@@ -1,4 +1,4 @@
-package com.agendalc.agendalc.controllers.dto;
+package com.agendalc.agendalc.dto;
 
 import java.time.LocalDate;
 

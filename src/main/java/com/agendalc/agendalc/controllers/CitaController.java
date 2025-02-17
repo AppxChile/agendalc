@@ -1,7 +1,7 @@
 package com.agendalc.agendalc.controllers;
 
-import com.agendalc.agendalc.controllers.dto.CitaDto;
-import com.agendalc.agendalc.controllers.dto.CitaRequest;
+import com.agendalc.agendalc.dto.CitaDto;
+import com.agendalc.agendalc.dto.CitaRequest;
 import com.agendalc.agendalc.entities.Cita;
 import com.agendalc.agendalc.services.CitaService;
 import org.springframework.http.HttpStatus;
@@ -22,8 +22,8 @@ public class CitaController {
 
     // Crear una nueva cita
     @PostMapping
-    public ResponseEntity<Cita> crearCita(@RequestBody CitaRequest citaRequest) {
-        Cita nuevaCita = citaService.crearCita(citaRequest);
+    public ResponseEntity<CitaDto> crearCita(@RequestBody CitaRequest citaRequest) {
+        CitaDto nuevaCita = citaService.crearCita(citaRequest);
         return ResponseEntity.status(201).body(nuevaCita);
     }
 

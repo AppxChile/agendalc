@@ -1,6 +1,6 @@
 package com.agendalc.agendalc.controllers;
 
-import com.agendalc.agendalc.controllers.dto.AgendaRequest;
+import com.agendalc.agendalc.dto.AgendaRequest;
 import com.agendalc.agendalc.entities.Agenda;
 import com.agendalc.agendalc.services.AgendaService;
 import org.springframework.http.HttpStatus;

@@ -28,4 +28,6 @@ public class SolicitudCitaService {
         solicitud.setAsignadoA(loginUsuario);
         return solicitudCitaRepository.save(solicitud);
     }
+
+   
 }

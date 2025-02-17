@@ -73,4 +73,10 @@ public class SolicitudCita {
     public void setEstado(EstadoSolicitud estado) {
         this.estado = estado;
     }
+
+    public void setFechaSolicitud(LocalDateTime fechaSolicitud) {
+        this.fechaSolicitud = fechaSolicitud;
+    }
+
+    
 }
