@@ -3,10 +3,12 @@ package com.agendalc.agendalc.services;
 import com.agendalc.agendalc.dto.CitaDto;
 import com.agendalc.agendalc.dto.CitaRequest;
 import com.agendalc.agendalc.entities.Agenda;
+import com.agendalc.agendalc.entities.BloqueHorario;
 import com.agendalc.agendalc.entities.Cita;
 import com.agendalc.agendalc.entities.SolicitudCita;
 import com.agendalc.agendalc.entities.Cita.EstadoCita;
 import com.agendalc.agendalc.repositories.AgendaRepository;
+import com.agendalc.agendalc.repositories.BloqueHorarioRepository;
 import com.agendalc.agendalc.repositories.CitaRepository;
 import com.agendalc.agendalc.repositories.SolicitudCitaRepository;
 
@@ -24,44 +26,57 @@ public class CitaService {
     private final CitaRepository citaRepository;
     private final AgendaRepository agendaRepository;
     private final SolicitudCitaRepository solicitudCitaRepository;
+    private final BloqueHorarioRepository bloqueHorarioRepository;
 
     public CitaService(CitaRepository citaRepository,
             AgendaRepository agendaRepository,
-            SolicitudCitaRepository solicitudCitaRepository) {
+            SolicitudCitaRepository solicitudCitaRepository,
+            BloqueHorarioRepository bloqueHorarioRepository) {
         this.citaRepository = citaRepository;
         this.agendaRepository = agendaRepository;
         this.solicitudCitaRepository=solicitudCitaRepository;
+        this.bloqueHorarioRepository=bloqueHorarioRepository;
+
     }
 
     // Crear una nueva cita
     @Transactional
     public CitaDto crearCita(CitaRequest citaRequest) {
-        // Validar existencia de la agenda
         Agenda agenda = agendaRepository.findById(citaRequest.getIdAgenda())
             .orElseThrow(() -> new EntityNotFoundException("Agenda no encontrada"));
-
-        // Crear Cita
+    
+        BloqueHorario bloqueHorario = bloqueHorarioRepository.findById(citaRequest.getIdBloqueHorario())
+            .orElseThrow(() -> new EntityNotFoundException("Bloque horario no encontrado"));
+    
+        if (!agenda.getBloquesHorarios().contains(bloqueHorario)) {
+            throw new IllegalArgumentException("El bloque horario no pertenece a la agenda seleccionada");
+        }
+    
+        if (bloqueHorario.getCuposDisponibles() <= 0) {
+            throw new IllegalStateException("No hay cupos disponibles en este bloque horario");
+        }
+    
         Cita cita = new Cita();
         cita.setRut(citaRequest.getRut());
         cita.setEstado(EstadoCita.PENDIENTE);
         cita.setAgenda(agenda);
-
-        // Guardar cita en BD
+        cita.setBloqueHorario(bloqueHorario);
+    
         cita = citaRepository.save(cita);
-
-        // Crear la Solicitud
+    
+        bloqueHorario.setCuposDisponibles(bloqueHorario.getCuposDisponibles() - 1);
+        bloqueHorarioRepository.save(bloqueHorario);
+    
         SolicitudCita solicitud = new SolicitudCita();
         solicitud.setCita(cita);
         solicitud.setFechaSolicitud(LocalDateTime.now());
-
-        // Guardar solicitud en BD
+    
         solicitudCitaRepository.save(solicitud);
-
-        // Retornar DTO
+    
         return new CitaDto(cita);
     }
+    
 
-    // Obtener una cita por su id
     public Optional<Cita> obtenerCita(Long id) {
         return citaRepository.findById(id);
     }
@@ -77,7 +92,7 @@ public class CitaService {
             citaExistente.setEstado(citaActualizada.getEstado());
             return citaRepository.save(citaExistente);
         }
-        return null; // o lanzar una excepción si no se encuentra la cita
+        return null; 
     }
 
     @Transactional
@@ -87,6 +102,6 @@ public class CitaService {
             citaRepository.delete(citaOptional.get());
             return true;
         }
-        return false; // o lanzar una excepción si no se encuentra la cita
+        return false;
     }
 }

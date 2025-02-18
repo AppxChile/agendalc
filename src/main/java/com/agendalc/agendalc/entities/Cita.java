@@ -9,6 +9,7 @@ import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -28,6 +29,10 @@ public class Cita {
     @ManyToOne
     @JoinColumn(name = "id_agenda", nullable = false)
     private Agenda agenda;
+
+     @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "id_bloque_horario", nullable = false)
+    private BloqueHorario bloqueHorario; 
 
     @Column(nullable = false, updatable = false)
     @CreationTimestamp
@@ -81,6 +86,14 @@ public class Cita {
 
     public void setEstado(EstadoCita estado) {
         this.estado = estado;
+    }
+
+    public BloqueHorario getBloqueHorario() {
+        return bloqueHorario;
+    }
+
+    public void setBloqueHorario(BloqueHorario bloqueHorario) {
+        this.bloqueHorario = bloqueHorario;
     }
 
     

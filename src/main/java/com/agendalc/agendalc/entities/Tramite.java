@@ -23,7 +23,6 @@ public class Tramite {
 
     private String descripcion;
 
-    // Relación con agenda (OneToMany)
     @OneToMany(mappedBy = "tramite")
     @JsonIgnore
     private Set<Agenda> agendas;

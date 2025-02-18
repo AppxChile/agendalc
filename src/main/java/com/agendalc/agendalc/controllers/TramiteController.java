@@ -35,21 +35,18 @@ public class TramiteController {
         return new ResponseEntity<>(nuevoTramite, HttpStatus.CREATED);
     }
 
-    // Obtener todos los trámites
     @GetMapping
     public ResponseEntity<List<Tramite>> obtenerTodosLosTramites() {
         List<Tramite> tramites = tramiteService.obtenerTodosLosTramites();
         return new ResponseEntity<>(tramites, HttpStatus.OK);
     }
 
-    // Obtener un trámite por ID
     @GetMapping("/{id}")
     public ResponseEntity<Tramite> obtenerTramitePorId(@PathVariable Long id) {
         Optional<Tramite> tramite = tramiteService.obtenerTramitePorId(id);
         return tramite.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND).build());
     }
 
-    // Actualizar un trámite
     @PutMapping("/{id}")
     public ResponseEntity<Tramite> actualizarTramite(@PathVariable Long id, @RequestBody Tramite tramite) {
         Tramite tramiteActualizado = tramiteService.actualizarTramite(id, tramite);
@@ -57,7 +54,6 @@ public class TramiteController {
                 : ResponseEntity.status(HttpStatus.NOT_FOUND).build();
     }
 
-    // Eliminar un trámite
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> eliminarTramite(@PathVariable Long id) {
         boolean eliminado = tramiteService.eliminarTramite(id);

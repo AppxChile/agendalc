@@ -14,8 +14,8 @@ public class SolicitudCita {
     @JoinColumn(name = "id_cita", nullable = false, unique = true)
     private Cita cita;
 
-    @Column(nullable = true) // Puede ser null si no está asignada aún
-    private String asignadoA; // Guarda el login del usuario asignado
+    @Column(nullable = true) 
+    private String asignadoA;
 
     @Column(nullable = false, updatable = false)
     private LocalDateTime fechaSolicitud;
@@ -25,9 +25,9 @@ public class SolicitudCita {
     private EstadoSolicitud estado;
 
     public enum EstadoSolicitud {
-        PENDIENTE, // Aún no asignada
-        ASIGNADA,  // Tiene usuario asignado
-        FINALIZADA // Cita completada
+        PENDIENTE, 
+        ASIGNADA,  
+        FINALIZADA 
     }
 
     @PrePersist
@@ -36,7 +36,6 @@ public class SolicitudCita {
         this.estado = EstadoSolicitud.PENDIENTE;
     }
 
-    // Getters y Setters
     public Long getIdSolicitud() {
         return idSolicitud;
     }
@@ -59,7 +58,7 @@ public class SolicitudCita {
 
     public void setAsignadoA(String asignadoA) {
         this.asignadoA = asignadoA;
-        this.estado = EstadoSolicitud.ASIGNADA; // Cambia el estado al asignar
+        this.estado = EstadoSolicitud.ASIGNADA; 
     }
 
     public LocalDateTime getFechaSolicitud() {

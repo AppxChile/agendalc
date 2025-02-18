@@ -1,40 +1,36 @@
 package com.agendalc.agendalc.dto;
 
 import java.time.LocalDate;
+import java.util.Set;
+import com.agendalc.agendalc.entities.BloqueHorario;
 
 public class AgendaRequest {
 
     private Long idTramite;
-    private Long idBloque;
+    private Set<BloqueHorario> bloqueHorario;
     private LocalDate fecha;
-    private int cuposDisponibles;
-    
+
     public Long getIdTramite() {
         return idTramite;
     }
+
     public void setIdTramite(Long idTramite) {
         this.idTramite = idTramite;
     }
-    public Long getIdBloque() {
-        return idBloque;
-    }
-    public void setIdBloque(Long idBloque) {
-        this.idBloque = idBloque;
-    }
+
     public LocalDate getFecha() {
         return fecha;
     }
+
     public void setFecha(LocalDate fecha) {
         this.fecha = fecha;
     }
-    public int getCuposDisponibles() {
-        return cuposDisponibles;
-    }
-    public void setCuposDisponibles(int cuposDisponibles) {
-        this.cuposDisponibles = cuposDisponibles;
+
+    public Set<BloqueHorario> getBloqueHorario() {
+        return bloqueHorario;
     }
 
-    
-
-
+    public void setBloqueHorario(Set<BloqueHorario> bloqueHorario) {
+        this.bloqueHorario = bloqueHorario;
+    }
 }
