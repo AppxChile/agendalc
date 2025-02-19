@@ -36,10 +36,10 @@ public class TramiteService {
     @Transactional
     public Tramite actualizarTramite(Long id, Tramite tramite) {
         if (tramiteRepository.existsById(id)) {
-            tramite.setIdTramite(id); // Aseguramos que el ID se mantenga
+            tramite.setIdTramite(id); 
             return tramiteRepository.save(tramite);
         }
-        return null; // O lanzar excepción si no existe el trámite
+        return null; 
     }
 
     @Transactional

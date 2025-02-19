@@ -1,10 +1,13 @@
-package com.agendalc.agendalc.controllers.dto;
+package com.agendalc.agendalc.dto;
 
 public class CitaRequest {
 
     private Long idAgenda;
     private Integer rut;
     private String estado;
+    private Long idBloqueHorario;
+
+
     public Integer getRut() {
         return rut;
     }
@@ -22,6 +25,12 @@ public class CitaRequest {
     }
     public void setIdAgenda(Long idAdenga) {
         this.idAgenda = idAdenga;
+    }
+    public Long getIdBloqueHorario() {
+        return idBloqueHorario;
+    }
+    public void setIdBloqueHorario(Long getIdBloqueHorario) {
+        this.idBloqueHorario = getIdBloqueHorario;
     }
 
     
