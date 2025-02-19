@@ -2,6 +2,8 @@ package com.agendalc.agendalc.services;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import com.agendalc.agendalc.dto.SolicitudResponse;
 import com.agendalc.agendalc.entities.SolicitudCita;
 import com.agendalc.agendalc.repositories.SolicitudCitaRepository;
 
@@ -16,8 +18,26 @@ public class SolicitudCitaService {
         this.solicitudCitaRepository = solicitudCitaRepository;
     }
 
-    public List<SolicitudCita> obtenerSolicitudesPendientes() {
-        return solicitudCitaRepository.findByEstado(SolicitudCita.EstadoSolicitud.PENDIENTE);
+    public List<SolicitudResponse> obtenerSolicitudesPendientes() {
+
+        List<SolicitudCita> solicitudes = solicitudCitaRepository.findByEstado(SolicitudCita.EstadoSolicitud.PENDIENTE);
+
+       return  solicitudes.stream()
+                .map(sol ->{
+
+                    SolicitudResponse response = new SolicitudResponse();
+
+                    response.setIdSolicitud(sol.getIdSolicitud());
+                    response.setFechaSolicitud(sol.getFechaSolicitud().toLocalDate());
+                    response.setAsignadoA(sol.getAsignadoA());
+                    response.setRut(sol.getCita().getRut());
+                    response.setFechaHora(sol.getCita().getFechaHora());
+                    response.setEstadoSolicitud(sol.getEstado().name());
+                    response.setEstadoCita(sol.getCita().getEstado().name());
+
+                    return response;
+                }).toList();
+
     }
 
     @Transactional
@@ -28,6 +48,9 @@ public class SolicitudCitaService {
         solicitud.setAsignadoA(loginUsuario);
         return solicitudCitaRepository.save(solicitud);
     }
+
+
+ 
 
    
 }

@@ -9,4 +9,5 @@ import java.util.List;
 
 public interface SolicitudCitaRepository extends JpaRepository<SolicitudCita, Long> {
     List<SolicitudCita> findByEstado(SolicitudCita.EstadoSolicitud estado);
+
 }
