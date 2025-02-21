@@ -4,7 +4,6 @@ public class CitaRequest {
 
     private Long idAgenda;
     private Integer rut;
-    private String estado;
     private Long idBloqueHorario;
 
 
@@ -14,12 +13,8 @@ public class CitaRequest {
     public void setRut(Integer rut) {
         this.rut = rut;
     }
-    public String getEstado() {
-        return estado;
-    }
-    public void setEstado(String estado) {
-        this.estado = estado;
-    }
+
+    
     public Long getIdAgenda() {
         return idAgenda;
     }

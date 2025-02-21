@@ -11,4 +11,6 @@ public interface SolicitudCitaRepository extends JpaRepository<SolicitudCita, Lo
 
     List<SolicitudCita> findByAsignadoAIsNull();
 
+
+    List<SolicitudCita> findByAsignadoA(String asignadoA);
 }

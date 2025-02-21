@@ -35,7 +35,7 @@ public class CitaController {
 
         } catch (EntityNotFoundException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                    .body(Map.of(ERROR_KEY, "No se encontró la agenda o bloque horario"));
+                    .body(Map.of(ERROR_KEY, "No se encontró la agenda o bloque horario"+ e.getMessage()));
 
         } catch (IllegalArgumentException e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
@@ -47,7 +47,7 @@ public class CitaController {
 
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(Map.of(ERROR_KEY, "Ocurrió un error inesperado"));
+                    .body(Map.of(ERROR_KEY, e.getMessage()));
         }
     }
 
