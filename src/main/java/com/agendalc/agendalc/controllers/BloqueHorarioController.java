@@ -10,7 +10,7 @@ import java.util.List;
 import java.util.Optional;
 
 @RestController
-@RequestMapping("/api/bloques-horarios")
+@RequestMapping("/agendalc/api/bloques-horarios")
 public class BloqueHorarioController {
 
     private final BloqueHorarioService bloqueHorarioService;

@@ -15,7 +15,7 @@ import java.util.Map;
 import java.util.Optional;
 
 @RestController
-@RequestMapping("/api/citas")
+@RequestMapping("/agendalc/api/citas")
 public class CitaController {
 
     private static final String ERROR_KEY = "error";

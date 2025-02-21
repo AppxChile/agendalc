@@ -12,7 +12,7 @@ import java.util.List;
 import java.util.Optional;
 
 @RestController
-@RequestMapping("/api/agendas")
+@RequestMapping("/agendalc/api/agendas")
 public class AgendaController {
 
     private final AgendaService agendaService;

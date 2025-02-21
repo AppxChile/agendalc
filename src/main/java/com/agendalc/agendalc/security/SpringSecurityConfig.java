@@ -53,9 +53,10 @@ public class SpringSecurityConfig {
                 .cors(cors -> cors.configurationSource(corsConfigurationSource())) // Usa el bean de CORS
                 .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(authz -> authz
+                        .requestMatchers("/agendalc/**").hasRole("FUNC")
                         .anyRequest().authenticated())
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                .addFilterBefore(new JwtValidationFilter(jwtUtils), UsernamePasswordAuthenticationFilter.class); 
+                .addFilterBefore(new JwtValidationFilter(jwtUtils), UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
     }

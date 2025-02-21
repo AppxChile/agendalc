@@ -16,7 +16,7 @@ import com.agendalc.agendalc.dto.SolicitudResponse;
 import com.agendalc.agendalc.services.SolicitudCitaService;
 
 @RestController
-@RequestMapping("/api/solicitud")
+@RequestMapping("/agendalc/api/solicitud")
 public class SolicitudCitaController {
 
     private final SolicitudCitaService solicitudCitaService;
