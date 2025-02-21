@@ -19,6 +19,9 @@ import java.util.Set;
 @Service
 public class AgendaService {
 
+    private  static final String MSG_AGENDA="Agenda no encontrada con ID: ";
+    private  static final String MSG_BLOQUE="Bloque horario no encontrado ";
+
     private final AgendaRepository agendaRepository;
     private final TramiteRepository tramiteRepository;
     private final BloqueHorarioRepository bloqueHorarioRepository;
@@ -56,7 +59,7 @@ public class AgendaService {
                 bloqueRequest = bloqueHorarioRepository.save(nuevoBloque);
             } else {
                 bloqueRequest = bloqueHorarioRepository.findById(bloqueRequest.getIdBloque())
-                        .orElseThrow(() -> new RuntimeException("Bloque horario no encontrado"));
+                        .orElseThrow(() -> new RuntimeException(MSG_BLOQUE));
             }
 
             bloques.add(bloqueRequest);
@@ -96,7 +99,7 @@ public class AgendaService {
     @Transactional
     public Agenda agregarBloquesAHorario(Long idAgenda, List<BloqueHorario> bloquesHorarios) {
         Agenda agenda = agendaRepository.findById(idAgenda)
-                .orElseThrow(() -> new IllegalArgumentException("Agenda no encontrada con ID: " + idAgenda));
+                .orElseThrow(() -> new IllegalArgumentException(MSG_AGENDA+ idAgenda));
 
         if (bloquesHorarios == null || bloquesHorarios.isEmpty()) {
             throw new IllegalArgumentException("La lista de bloques horarios está vacía o es nula");
@@ -116,7 +119,7 @@ public class AgendaService {
             } else {
                 BloqueHorario bloqueExistente = bloqueHorarioRepository.findById(bloque.getIdBloque())
                         .orElseThrow(() -> new IllegalArgumentException(
-                                "BloqueHorario no encontrado con ID: " + bloque.getIdBloque()));
+                            MSG_BLOQUE + bloque.getIdBloque()));
                 nuevosBloques.add(bloqueExistente);
             }
         }
@@ -130,11 +133,11 @@ public class AgendaService {
     @Transactional
     public Agenda eliminarBloqueDeAgenda(Long idAgenda, Long idBloqueHorario) {
         Agenda agenda = agendaRepository.findById(idAgenda)
-                .orElseThrow(() -> new IllegalArgumentException("Agenda no encontrada con ID: " + idAgenda));
+                .orElseThrow(() -> new IllegalArgumentException(MSG_AGENDA+ idAgenda));
 
         BloqueHorario bloqueHorario = bloqueHorarioRepository.findById(idBloqueHorario)
                 .orElseThrow(
-                        () -> new IllegalArgumentException("Bloque horario no encontrado con ID: " + idBloqueHorario));
+                        () -> new IllegalArgumentException(MSG_BLOQUE+ idBloqueHorario));
 
         if (!agenda.getBloquesHorarios().contains(bloqueHorario)) {
             throw new IllegalArgumentException("El bloque horario no está asociado con esta agenda");
@@ -150,7 +153,7 @@ public class AgendaService {
     @Transactional
     public Agenda actualizarBloquesHorariosDeAgenda(Long idAgenda, List<BloqueHorario> bloquesHorarioActualizados) {
         Agenda agenda = agendaRepository.findById(idAgenda)
-                .orElseThrow(() -> new IllegalArgumentException("Agenda no encontrada con ID: " + idAgenda));
+                .orElseThrow(() -> new IllegalArgumentException(MSG_AGENDA+ idAgenda));
     
         if (bloquesHorarioActualizados == null || bloquesHorarioActualizados.isEmpty()) {
             throw new IllegalArgumentException("La lista de bloques horarios está vacía");
@@ -158,10 +161,10 @@ public class AgendaService {
     
         for (BloqueHorario nuevoBloqueHorario : bloquesHorarioActualizados) {
             BloqueHorario bloqueHorario = bloqueHorarioRepository.findById(nuevoBloqueHorario.getIdBloque())
-                    .orElseThrow(() -> new IllegalArgumentException("Bloque horario no encontrado con ID: " + nuevoBloqueHorario.getIdBloque()));
+                    .orElseThrow(() -> new IllegalArgumentException(MSG_BLOQUE+ nuevoBloqueHorario.getIdBloque()));
     
             if (!agenda.getBloquesHorarios().contains(bloqueHorario)) {
-                throw new IllegalArgumentException("El bloque horario con ID " + nuevoBloqueHorario.getIdBloque() + " no está asociado con esta agenda");
+                throw new IllegalArgumentException(MSG_BLOQUE + nuevoBloqueHorario.getIdBloque() + " no está asociado con esta agenda");
             }
     
             bloqueHorario.setHoraInicio(nuevoBloqueHorario.getHoraInicio());

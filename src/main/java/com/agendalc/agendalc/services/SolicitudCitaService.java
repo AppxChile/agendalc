@@ -22,8 +22,8 @@ public class SolicitudCitaService {
 
         List<SolicitudCita> solicitudes = solicitudCitaRepository.findByEstado(SolicitudCita.EstadoSolicitud.PENDIENTE);
 
-       return  solicitudes.stream()
-                .map(sol ->{
+        return solicitudes.stream()
+                .map(sol -> {
 
                     SolicitudResponse response = new SolicitudResponse();
 
@@ -44,13 +44,30 @@ public class SolicitudCitaService {
     public SolicitudCita asignarSolicitud(Long idSolicitud, String loginUsuario) {
         SolicitudCita solicitud = solicitudCitaRepository.findById(idSolicitud)
                 .orElseThrow(() -> new IllegalArgumentException("Solicitud no encontrada"));
-        
+
         solicitud.setAsignadoA(loginUsuario);
         return solicitudCitaRepository.save(solicitud);
     }
 
+    public List<SolicitudResponse> obtenerSolicitudesNoAsignadas(){
 
- 
+        List<SolicitudCita> solicitudes = solicitudCitaRepository.findByAsignadoAIsNull();
 
-   
+        return solicitudes.stream()
+                 .map(sol -> {
+                    SolicitudResponse response = new SolicitudResponse();
+
+                    response.setIdSolicitud(sol.getIdSolicitud());
+                    response.setFechaSolicitud(sol.getFechaSolicitud().toLocalDate());
+                    response.setAsignadoA(sol.getAsignadoA());
+                    response.setRut(sol.getCita().getRut());
+                    response.setFechaHora(sol.getCita().getFechaHora());
+                    response.setEstadoSolicitud(sol.getEstado().name());
+                    response.setEstadoCita(sol.getCita().getEstado().name());
+
+                    return response;
+                 }).toList();
+
+    }
+
 }

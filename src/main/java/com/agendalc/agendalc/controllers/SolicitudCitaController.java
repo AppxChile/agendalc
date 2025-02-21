@@ -34,4 +34,17 @@ public class SolicitudCitaController {
      
     }
 
+    @GetMapping("/no-asignadas")
+    public ResponseEntity<Object> obtenerSolicitudNoAsignadas() {
+
+        try {
+           List<SolicitudResponse> response = solicitudCitaService.obtenerSolicitudesNoAsignadas();
+           return ResponseEntity.ok(response);
+            
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
+        }
+     
+    }
+
 }
