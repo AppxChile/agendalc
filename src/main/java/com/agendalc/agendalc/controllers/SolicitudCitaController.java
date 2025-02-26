@@ -5,6 +5,7 @@ import java.util.Map;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -26,6 +27,7 @@ public class SolicitudCitaController {
     }
 
     @GetMapping("/entrantes")
+    @PreAuthorize("hasRole('FUNC')")
     public ResponseEntity<Object> obtenerSolicitudesEntrantes() {
 
         try {
@@ -39,6 +41,7 @@ public class SolicitudCitaController {
     }
 
     @GetMapping("/list")
+    @PreAuthorize("hasRole('FUNC')")
     public ResponseEntity<Object> obtenerSolicitudes() {
 
         try {
@@ -52,6 +55,7 @@ public class SolicitudCitaController {
     }
 
     @PostMapping("/asignar")
+    @PreAuthorize("hasRole('FUNC')")
     public ResponseEntity<Object> asignarSolicitud(@RequestParam Long idSolicitud, @RequestParam String username) {
         try {
             solicitudCitaService.asignarSolicitud(idSolicitud, username);
@@ -62,6 +66,7 @@ public class SolicitudCitaController {
     }
 
     @GetMapping("/no-asignadas")
+    @PreAuthorize("hasRole('FUNC')")
     public ResponseEntity<Object> obtenerSolicitudNoAsignadas() {
 
         try {
@@ -75,6 +80,7 @@ public class SolicitudCitaController {
     }
 
     @GetMapping("/asignada/{username}")
+    @PreAuthorize("hasRole('FUNC')")
     public ResponseEntity<Object> obtenerSolicitudAsignada(@PathVariable String username) {
 
         try {
@@ -89,6 +95,7 @@ public class SolicitudCitaController {
 
     
     @PostMapping("/terminar/{id}")
+    @PreAuthorize("hasRole('FUNC')")
     public ResponseEntity<Object> obtenerSolicitudAsignada(@PathVariable Long id) {
 
         try {

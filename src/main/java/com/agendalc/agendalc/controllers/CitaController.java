@@ -9,6 +9,7 @@ import jakarta.persistence.EntityNotFoundException;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Map;
@@ -28,6 +29,7 @@ public class CitaController {
 
     
     @PostMapping
+    @PreAuthorize("hasRole('USER')")
     public ResponseEntity<Object> crearCita(@RequestBody CitaRequest citaRequest) {
         try {
             CitaDto nuevaCita = citaService.crearCita(citaRequest);
@@ -52,6 +54,7 @@ public class CitaController {
     }
 
     @GetMapping("/{id}")
+    @PreAuthorize("hasRole('USER')")
     public ResponseEntity<CitaDto> obtenerCita(@PathVariable Long id) {
         Optional<Cita> citaOptional = citaService.obtenerCita(id);
         return citaOptional.map(cita -> new ResponseEntity<>(new CitaDto(cita), HttpStatus.OK))
@@ -59,6 +62,7 @@ public class CitaController {
     }
 
     @PutMapping("/{id}")
+    @PreAuthorize("hasRole('FUNC')")
     public ResponseEntity<Cita> actualizarCita(@PathVariable Long id, @RequestBody Cita cita) {
         Cita citaActualizada = citaService.actualizarCita(id, cita);
         return citaActualizada != null
@@ -67,6 +71,7 @@ public class CitaController {
     }
 
     @DeleteMapping("/{id}")
+    @PreAuthorize("hasRole('FUNC')")
     public ResponseEntity<Void> eliminarCita(@PathVariable Long id) {
         boolean eliminado = citaService.eliminarCita(id);
         return eliminado ? new ResponseEntity<>(HttpStatus.NO_CONTENT)
