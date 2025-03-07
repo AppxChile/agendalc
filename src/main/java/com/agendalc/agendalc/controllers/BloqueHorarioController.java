@@ -11,7 +11,8 @@ import java.util.List;
 import java.util.Optional;
 
 @RestController
-@RequestMapping("/agendalc/api/bloques-horarios")
+@RequestMapping("/api/agendalc/bloques-horarios")
+@CrossOrigin(origins = "https://dev.appx.cl/")
 public class BloqueHorarioController {
 
     private final BloqueHorarioService bloqueHorarioService;

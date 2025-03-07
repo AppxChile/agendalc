@@ -13,7 +13,8 @@ import java.util.List;
 import java.util.Optional;
 
 @RestController
-@RequestMapping("/agendalc/api/agendas")
+@RequestMapping("/api/agendalc/agendas")
+@CrossOrigin(origins = "https://dev.appx.cl/")
 public class AgendaController {
 
     private final AgendaService agendaService;

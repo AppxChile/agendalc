@@ -16,7 +16,8 @@ import java.util.Map;
 import java.util.Optional;
 
 @RestController
-@RequestMapping("/agendalc/api/citas")
+@RequestMapping("/api/agendalc/citas")
+@CrossOrigin(origins = "https://dev.appx.cl/")
 public class CitaController {
 
     private static final String ERROR_KEY = "error";

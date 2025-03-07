@@ -20,8 +20,8 @@ import com.agendalc.agendalc.entities.Tramite;
 import com.agendalc.agendalc.services.TramiteService;
 
 @RestController
-@RequestMapping("/agendalc/api/tramites")
-@CrossOrigin(origins = "http://localhost:5173")
+@RequestMapping("/api/agendalc/tramites")
+@CrossOrigin(origins = "https://dev.appx.cl/")
 public class TramiteController {
 
     private final TramiteService tramiteService;
