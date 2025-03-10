@@ -22,12 +22,10 @@ public class BloqueHorarioService {
         return bloqueHorarioRepository.save(bloqueHorario);
     }
 
-    // Obtener todos los bloques horarios
     public List<BloqueHorario> obtenerTodosLosBloquesHorarios() {
         return bloqueHorarioRepository.findAll();
     }
 
-    // Obtener un bloque horario por su ID
     public Optional<BloqueHorario> obtenerBloqueHorarioPorId(Long id) {
         return bloqueHorarioRepository.findById(id);
     }

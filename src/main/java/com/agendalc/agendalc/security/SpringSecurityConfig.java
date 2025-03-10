@@ -50,7 +50,7 @@ public class SpringSecurityConfig {
     SecurityFilterChain filterChain(HttpSecurity http, JwtUtils jwtUtils) throws Exception {
 
         http
-        .cors(cors -> cors.configurationSource(corsConfigurationSource()))
+                .cors(cors -> cors.configurationSource(corsConfigurationSource())) // Usa el bean de CORS
                 .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(authz -> authz
                         .anyRequest().authenticated())

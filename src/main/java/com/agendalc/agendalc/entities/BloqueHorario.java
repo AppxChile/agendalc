@@ -1,16 +1,10 @@
 package com.agendalc.agendalc.entities;
 
 import java.time.LocalTime;
+import java.util.HashSet;
 import java.util.Set;
-
 import com.fasterxml.jackson.annotation.JsonIgnore;
-
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.OneToMany;
+import jakarta.persistence.*;
 
 @Entity
 public class BloqueHorario {
@@ -25,10 +19,12 @@ public class BloqueHorario {
     @Column(nullable = false)
     private LocalTime horaFin;
 
-    // Relación con agenda (OneToMany)
-    @OneToMany(mappedBy = "bloqueHorario")
+    @Column(nullable = false)
+    private int cuposDisponibles; 
+
+    @ManyToMany(mappedBy = "bloquesHorarios")
     @JsonIgnore
-    private Set<Agenda> agendas;
+    private Set<Agenda> agendas = new HashSet<>();
 
     public Long getIdBloque() {
         return idBloque;
@@ -36,6 +32,14 @@ public class BloqueHorario {
 
     public void setIdBloque(Long idBloque) {
         this.idBloque = idBloque;
+    }
+
+    public Set<Agenda> getAgendas() {
+        return agendas;
+    }
+
+    public void setAgendas(Set<Agenda> agendas) {
+        this.agendas = agendas;
     }
 
     public LocalTime getHoraInicio() {
@@ -54,13 +58,11 @@ public class BloqueHorario {
         this.horaFin = horaFin;
     }
 
-    public Set<Agenda> getAgendas() {
-        return agendas;
+    public int getCuposDisponibles() {
+        return cuposDisponibles;
     }
 
-    public void setAgendas(Set<Agenda> agendas) {
-        this.agendas = agendas;
+    public void setCuposDisponibles(int cuposDisponibles) {
+        this.cuposDisponibles = cuposDisponibles;
     }
-
-    
 }

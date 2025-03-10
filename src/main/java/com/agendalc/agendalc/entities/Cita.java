@@ -7,8 +7,7 @@ import org.hibernate.annotations.CreationTimestamp;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -29,19 +28,15 @@ public class Cita {
     @JoinColumn(name = "id_agenda", nullable = false)
     private Agenda agenda;
 
+     @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "id_bloque_horario", nullable = false)
+    private BloqueHorario bloqueHorario; 
+
     @Column(nullable = false, updatable = false)
     @CreationTimestamp
     private LocalDateTime fechaHora;
 
-    @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
-    private EstadoCita estado = EstadoCita.PENDIENTE;
-
-    public enum EstadoCita {
-        PENDIENTE,
-        CONFIRMADA,
-        CANCELADA
-    }
+   
 
     public Long getIdCita() {
         return idCita;
@@ -75,12 +70,14 @@ public class Cita {
         this.fechaHora = fechaHora;
     }
 
-    public EstadoCita getEstado() {
-        return estado;
+
+
+    public BloqueHorario getBloqueHorario() {
+        return bloqueHorario;
     }
 
-    public void setEstado(EstadoCita estado) {
-        this.estado = estado;
+    public void setBloqueHorario(BloqueHorario bloqueHorario) {
+        this.bloqueHorario = bloqueHorario;
     }
 
     
