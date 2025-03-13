@@ -1,6 +1,6 @@
 package com.agendalc.agendalc.entities;
 
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 import jakarta.persistence.*;
 
 @Entity
@@ -18,7 +18,10 @@ public class SolicitudCita {
     private String asignadoA;
 
     @Column(nullable = false, updatable = false)
-    private LocalDateTime fechaSolicitud;
+    private LocalDate fechaSolicitud;
+
+    
+    private LocalDate fechaFinalizacion;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
@@ -32,7 +35,7 @@ public class SolicitudCita {
 
     @PrePersist
     protected void onCreate() {
-        this.fechaSolicitud = LocalDateTime.now();
+        this.fechaSolicitud = LocalDate.now();
         this.estado = EstadoSolicitud.PENDIENTE;
     }
 
@@ -61,7 +64,7 @@ public class SolicitudCita {
         this.estado = EstadoSolicitud.ASIGNADA; 
     }
 
-    public LocalDateTime getFechaSolicitud() {
+    public LocalDate getFechaSolicitud() {
         return fechaSolicitud;
     }
 
@@ -73,8 +76,16 @@ public class SolicitudCita {
         this.estado = estado;
     }
 
-    public void setFechaSolicitud(LocalDateTime fechaSolicitud) {
+    public void setFechaSolicitud(LocalDate fechaSolicitud) {
         this.fechaSolicitud = fechaSolicitud;
+    }
+
+    public LocalDate getFechaFinalizacion() {
+        return fechaFinalizacion;
+    }
+
+    public void setFechaFinalizacion(LocalDate fechaFinalizacion) {
+        this.fechaFinalizacion = fechaFinalizacion;
     }
 
     

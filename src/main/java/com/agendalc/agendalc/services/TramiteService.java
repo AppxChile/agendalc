@@ -19,22 +19,22 @@ public class TramiteService {
     }
 
    @Transactional
-    public Tramite crearTramite(Tramite tramite) {
+    public Tramite createTramite(Tramite tramite) {
         return tramiteRepository.save(tramite);
     }
 
     // Obtener todos los trámites
-    public List<Tramite> obtenerTodosLosTramites() {
+    public List<Tramite> getAllTramites() {
         return tramiteRepository.findAll();
     }
 
     // Obtener un trámite por ID
-    public Optional<Tramite> obtenerTramitePorId(Long id) {
+    public Optional<Tramite> getTramiteById(Long id) {
         return tramiteRepository.findById(id);
     }
 
     @Transactional
-    public Tramite actualizarTramite(Long id, Tramite tramite) {
+    public Tramite updateTramite(Long id, Tramite tramite) {
         if (tramiteRepository.existsById(id)) {
             tramite.setIdTramite(id); 
             return tramiteRepository.save(tramite);
@@ -43,7 +43,7 @@ public class TramiteService {
     }
 
     @Transactional
-    public boolean eliminarTramite(Long id) {
+    public boolean deleteTramiteById(Long id) {
         if (tramiteRepository.existsById(id)) {
             tramiteRepository.deleteById(id);
             return true;

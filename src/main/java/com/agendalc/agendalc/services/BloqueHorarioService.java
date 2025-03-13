@@ -6,45 +6,44 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.Optional;
 
 @Service
 public class BloqueHorarioService {
 
     private final BloqueHorarioRepository bloqueHorarioRepository;
 
-    public BloqueHorarioService(BloqueHorarioRepository bloqueHorarioRepository){
-        this.bloqueHorarioRepository=bloqueHorarioRepository;
+    public BloqueHorarioService(BloqueHorarioRepository bloqueHorarioRepository) {
+        this.bloqueHorarioRepository = bloqueHorarioRepository;
     }
 
     @Transactional
-    public BloqueHorario crearBloqueHorario(BloqueHorario bloqueHorario) {
+    public BloqueHorario createBloqueHorario(BloqueHorario bloqueHorario) {
         return bloqueHorarioRepository.save(bloqueHorario);
     }
 
-    public List<BloqueHorario> obtenerTodosLosBloquesHorarios() {
+    public List<BloqueHorario> getAllBloquesHorarios() {
         return bloqueHorarioRepository.findAll();
     }
 
-    public Optional<BloqueHorario> obtenerBloqueHorarioPorId(Long id) {
-        return bloqueHorarioRepository.findById(id);
+    public BloqueHorario getBloqueHorarioById(Long id) {
+        return bloqueHorarioRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Bloque horario no encontrado con ID: " + id));
     }
 
     @Transactional
-    public BloqueHorario actualizarBloqueHorario(Long id, BloqueHorario bloqueHorarioActualizado) {
-        if (bloqueHorarioRepository.existsById(id)) {
-            bloqueHorarioActualizado.setIdBloque(id);
-            return bloqueHorarioRepository.save(bloqueHorarioActualizado);
-        }
-        return null;
+    public BloqueHorario updateBloqueHorario(Long id, BloqueHorario bloqueHorarioActualizado) {
+        BloqueHorario bloqueExistente = getBloqueHorarioById(id);
+
+        bloqueExistente.setHoraInicio(bloqueHorarioActualizado.getHoraInicio());
+        bloqueExistente.setHoraFin(bloqueHorarioActualizado.getHoraFin());
+        bloqueExistente.setCuposDisponibles(bloqueHorarioActualizado.getCuposDisponibles());
+
+        return bloqueHorarioRepository.save(bloqueExistente);
     }
 
     @Transactional
-    public boolean eliminarBloqueHorario(Long id) {
-        if (bloqueHorarioRepository.existsById(id)) {
-            bloqueHorarioRepository.deleteById(id);
-            return true;
-        }
-        return false;
+    public void deleteBloqueHorarioById(Long id) {
+        BloqueHorario bloqueHorario = getBloqueHorarioById(id);
+        bloqueHorarioRepository.delete(bloqueHorario);
     }
 }

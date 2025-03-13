@@ -31,9 +31,9 @@ public class CitaController {
     
     @PostMapping
     @PreAuthorize("hasRole('USER')")
-    public ResponseEntity<Object> crearCita(@RequestBody CitaRequest citaRequest) {
+    public ResponseEntity<Object> createCita(@RequestBody CitaRequest citaRequest) {
         try {
-            CitaDto nuevaCita = citaService.crearCita(citaRequest);
+            CitaDto nuevaCita = citaService.createCita(citaRequest);
             return ResponseEntity.status(HttpStatus.CREATED).body(nuevaCita);
 
         } catch (EntityNotFoundException e) {
@@ -56,16 +56,16 @@ public class CitaController {
 
     @GetMapping("/{id}")
     @PreAuthorize("hasRole('USER')")
-    public ResponseEntity<CitaDto> obtenerCita(@PathVariable Long id) {
-        Optional<Cita> citaOptional = citaService.obtenerCita(id);
+    public ResponseEntity<CitaDto> getCita(@PathVariable Long id) {
+        Optional<Cita> citaOptional = citaService.getCitaById(id);
         return citaOptional.map(cita -> new ResponseEntity<>(new CitaDto(cita), HttpStatus.OK))
                 .orElseGet(() -> new ResponseEntity<>(HttpStatus.NOT_FOUND));
     }
 
     @PutMapping("/{id}")
     @PreAuthorize("hasRole('FUNC')")
-    public ResponseEntity<Cita> actualizarCita(@PathVariable Long id, @RequestBody Cita cita) {
-        Cita citaActualizada = citaService.actualizarCita(id, cita);
+    public ResponseEntity<Cita> updateCita(@PathVariable Long id, @RequestBody Cita cita) {
+        Cita citaActualizada = citaService.updateCita(id, cita);
         return citaActualizada != null
                 ? new ResponseEntity<>(citaActualizada, HttpStatus.OK)
                 : new ResponseEntity<>(HttpStatus.NOT_FOUND);
@@ -73,8 +73,8 @@ public class CitaController {
 
     @DeleteMapping("/{id}")
     @PreAuthorize("hasRole('FUNC')")
-    public ResponseEntity<Void> eliminarCita(@PathVariable Long id) {
-        boolean eliminado = citaService.eliminarCita(id);
+    public ResponseEntity<Void> deleteCita(@PathVariable Long id) {
+        boolean eliminado = citaService.deleteCitaById(id);
         return eliminado ? new ResponseEntity<>(HttpStatus.NO_CONTENT)
                 : new ResponseEntity<>(HttpStatus.NOT_FOUND);
     }

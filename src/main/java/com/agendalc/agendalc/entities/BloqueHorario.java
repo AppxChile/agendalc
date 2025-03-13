@@ -26,6 +26,24 @@ public class BloqueHorario {
     @JsonIgnore
     private Set<Agenda> agendas = new HashSet<>();
 
+
+    
+
+    public BloqueHorario() {
+    }
+
+   
+    
+
+    public BloqueHorario(LocalTime horaInicio, LocalTime horaFin, int cuposDisponibles) {
+        this.horaInicio = horaInicio;
+        this.horaFin = horaFin;
+        this.cuposDisponibles = cuposDisponibles;
+    }
+
+
+
+
     public Long getIdBloque() {
         return idBloque;
     }

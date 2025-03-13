@@ -18,7 +18,10 @@ import jakarta.transaction.Transactional;
 
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.HashMap;
 import java.util.Optional;
 
 @Service
@@ -37,63 +40,92 @@ public class CitaService {
             ApiService apiService) {
         this.citaRepository = citaRepository;
         this.agendaRepository = agendaRepository;
-        this.solicitudCitaRepository=solicitudCitaRepository;
-        this.bloqueHorarioRepository=bloqueHorarioRepository;
-        this.apiService=apiService;
+        this.solicitudCitaRepository = solicitudCitaRepository;
+        this.bloqueHorarioRepository = bloqueHorarioRepository;
+        this.apiService = apiService;
 
     }
 
     // Crear una nueva cita
     @Transactional
-    public CitaDto crearCita(CitaRequest citaRequest) {
+    public CitaDto createCita(CitaRequest citaRequest) {
         Agenda agenda = agendaRepository.findById(citaRequest.getIdAgenda())
-            .orElseThrow(() -> new EntityNotFoundException("Agenda no encontrada"));
-    
+                .orElseThrow(() -> new EntityNotFoundException("Agenda no encontrada"));
+
         BloqueHorario bloqueHorario = bloqueHorarioRepository.findById(citaRequest.getIdBloqueHorario())
-            .orElseThrow(() -> new EntityNotFoundException("Bloque horario no encontrado"));
-    
+                .orElseThrow(() -> new EntityNotFoundException("Bloque horario no encontrado"));
+
         if (!agenda.getBloquesHorarios().contains(bloqueHorario)) {
             throw new IllegalArgumentException("El bloque horario no pertenece a la agenda seleccionada");
         }
-    
+
         if (bloqueHorario.getCuposDisponibles() <= 0) {
             throw new IllegalStateException("No hay cupos disponibles en este bloque horario");
         }
 
-        PersonaResponse persona = apiService.obtenerDatos(citaRequest.getRut());
+        PersonaResponse persona = apiService.getPersonaInfo(citaRequest.getRut());
 
-        if(persona == null){
+        if (persona == null) {
             throw new EntityNotFoundException("Persona no econtrada");
 
         }
-    
+
         Cita cita = new Cita();
         cita.setRut(citaRequest.getRut());
         cita.setAgenda(agenda);
         cita.setBloqueHorario(bloqueHorario);
-    
+
         cita = citaRepository.save(cita);
-    
+
         bloqueHorario.setCuposDisponibles(bloqueHorario.getCuposDisponibles() - 1);
         bloqueHorarioRepository.save(bloqueHorario);
-    
+
         SolicitudCita solicitud = new SolicitudCita();
         solicitud.setCita(cita);
-        solicitud.setFechaSolicitud(LocalDateTime.now());
+        solicitud.setFechaSolicitud(LocalDate.now());
         solicitud.setEstado(EstadoSolicitud.PENDIENTE);
-    
-        solicitudCitaRepository.save(solicitud);
-    
-        return new CitaDto(cita);
-    }
-    
 
-    public Optional<Cita> obtenerCita(Long id) {
+        solicitudCitaRepository.save(solicitud);
+
+        CitaDto citaDto = new CitaDto(cita);
+
+        String fechaFormateada = formatFecha(cita.getFechaHora().toLocalDate());
+
+        String horaFormateada = formatHora(cita.getFechaHora());
+
+        HashMap<String, Object> variables = new HashMap<>();
+
+        variables.put("nombre", persona.getNombres());
+        variables.put("fecha", fechaFormateada);
+        variables.put("hora", horaFormateada);
+
+        apiService.sendEmail(persona.getEmail(), "Agenda de hora", "cita-template", variables);
+
+        return citaDto;
+    }
+
+    private String formatFecha(LocalDate fecha) {
+
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+
+        return fecha.format(formatter);
+
+    }
+
+    private String formatHora(LocalDateTime fecha) {
+
+        DateTimeFormatter formatHora = DateTimeFormatter.ofPattern("HH:mm");
+
+        return fecha.toLocalTime().format(formatHora);
+
+    }
+
+    public Optional<Cita> getCitaById(Long id) {
         return citaRepository.findById(id);
     }
 
     @Transactional
-    public Cita actualizarCita(Long id, Cita citaActualizada) {
+    public Cita updateCita(Long id, Cita citaActualizada) {
         Optional<Cita> citaOptional = citaRepository.findById(id);
         if (citaOptional.isPresent()) {
             Cita citaExistente = citaOptional.get();
@@ -102,11 +134,11 @@ public class CitaService {
             citaExistente.setFechaHora(citaActualizada.getFechaHora());
             return citaRepository.save(citaExistente);
         }
-        return null; 
+        return null;
     }
 
     @Transactional
-    public boolean eliminarCita(Long id) {
+    public boolean deleteCitaById(Long id) {
         Optional<Cita> citaOptional = citaRepository.findById(id);
         if (citaOptional.isPresent()) {
             citaRepository.delete(citaOptional.get());

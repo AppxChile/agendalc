@@ -26,58 +26,58 @@ public class AgendaController {
     // Crear una nueva agenda
     @PostMapping
     @PreAuthorize("hasRole('USER')")
-    public ResponseEntity<Agenda> crearAgenda(@RequestBody AgendaRequest request) {
-        Agenda nuevaAgenda = agendaService.crearAgenda(request);
+    public ResponseEntity<Agenda> createAgenda(@RequestBody AgendaRequest request) {
+        Agenda nuevaAgenda = agendaService.createAgenda(request);
         return new ResponseEntity<>(nuevaAgenda, HttpStatus.CREATED);
     }
 
     @GetMapping
     @PreAuthorize("hasRole('FUNC')")
-    public ResponseEntity<List<Agenda>> obtenerTodasLasAgendas() {
-        List<Agenda> agendas = agendaService.obtenerTodasLasAgendas();
+    public ResponseEntity<List<Agenda>> getAllAgendas() {
+        List<Agenda> agendas = agendaService.getAllAgendas();
         return new ResponseEntity<>(agendas, HttpStatus.OK);
     }
 
     @GetMapping("/{id}")
     @PreAuthorize("hasRole('FUNC')")
-    public ResponseEntity<Agenda> obtenerAgendaPorId(@PathVariable Long id) {
-        Optional<Agenda> agenda = agendaService.obtenerAgendaPorId(id);
+    public ResponseEntity<Agenda> getAgendaById(@PathVariable Long id) {
+        Optional<Agenda> agenda = agendaService.getAgendaById(id);
         return agenda.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
     }
 
     @PutMapping("/{id}")
     @PreAuthorize("hasRole('FUNC')")
-    public ResponseEntity<Agenda> actualizarAgenda(@PathVariable Long id, @RequestBody Agenda agenda) {
-        Agenda agendaActualizada = agendaService.actualizarAgenda(id, agenda);
+    public ResponseEntity<Agenda> updateAgenda(@PathVariable Long id, @RequestBody Agenda agenda) {
+        Agenda agendaActualizada = agendaService.updateAgenda(id, agenda);
         return agendaActualizada != null ? ResponseEntity.ok(agendaActualizada) : ResponseEntity.notFound().build();
     }
 
     @DeleteMapping("/{id}")
     @PreAuthorize("hasRole('FUNC')")
-    public ResponseEntity<Void> eliminarAgenda(@PathVariable Long id) {
-        return agendaService.eliminarAgenda(id) ? ResponseEntity.noContent().build()
+    public ResponseEntity<Void> deleteAgenda(@PathVariable Long id) {
+        return agendaService.deleteAgendaById(id) ? ResponseEntity.noContent().build()
                 : ResponseEntity.notFound().build();
     }
 
     @PostMapping("/{idAgenda}/agregarBloques")
     @PreAuthorize("hasRole('FUNC')")
-    public ResponseEntity<Agenda> agregarBloquesAHorario(
+    public ResponseEntity<Agenda> addBloquesAHorario(
             @PathVariable Long idAgenda,
             @RequestBody List<BloqueHorario> bloquesHorarios) {
 
-        Agenda agenda = agendaService.agregarBloquesAHorario(idAgenda, bloquesHorarios);
+        Agenda agenda = agendaService.addBloquesAHorario(idAgenda, bloquesHorarios);
 
         return ResponseEntity.ok(agenda);
     }
 
     @DeleteMapping("/{idAgenda}/eliminarBloque/{idBloqueHorario}")
     @PreAuthorize("hasRole('FUNC')")
-    public ResponseEntity<Agenda> eliminarBloqueDeAgenda(
+    public ResponseEntity<Agenda> deleteBloqueDeAgenda(
             @PathVariable Long idAgenda,
             @PathVariable Long idBloqueHorario) {
 
         try {
-            Agenda agenda = agendaService.eliminarBloqueDeAgenda(idAgenda, idBloqueHorario);
+            Agenda agenda = agendaService.deleteBloqueDeAgenda(idAgenda, idBloqueHorario);
             return ResponseEntity.ok(agenda);
         } catch (IllegalArgumentException e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
@@ -90,12 +90,12 @@ public class AgendaController {
 
     @PutMapping("/{idAgenda}/actualizarBloques")
     @PreAuthorize("hasRole('FUNC')")
-    public ResponseEntity<Agenda> actualizarBloquesDeAgenda(
+    public ResponseEntity<Agenda> updateBloquesDeAgenda(
             @PathVariable Long idAgenda,
             @RequestBody List<BloqueHorario> bloquesHorarioActualizados) {
 
         try {
-            Agenda agenda = agendaService.actualizarBloquesHorariosDeAgenda(idAgenda, bloquesHorarioActualizados);
+            Agenda agenda = agendaService.updateBloquesHorariosDeAgenda(idAgenda, bloquesHorarioActualizados);
             return ResponseEntity.ok(agenda);
         } catch (IllegalArgumentException e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)

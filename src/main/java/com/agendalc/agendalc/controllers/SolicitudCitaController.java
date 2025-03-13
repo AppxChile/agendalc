@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.agendalc.agendalc.dto.SolicitudCitaResponse;
 import com.agendalc.agendalc.dto.SolicitudResponse;
 import com.agendalc.agendalc.services.SolicitudCitaService;
 
@@ -30,10 +31,10 @@ public class SolicitudCitaController {
 
     @GetMapping("/entrantes")
     @PreAuthorize("hasRole('FUNC')")
-    public ResponseEntity<Object> obtenerSolicitudesEntrantes() {
+    public ResponseEntity<Object> getIncomingSolicitudes() {
 
         try {
-            List<SolicitudResponse> response = solicitudCitaService.obtenerSolicitudesPendientes();
+            List<SolicitudResponse> response = solicitudCitaService.getSolicitudesPendientes();
             return ResponseEntity.ok(response);
 
         } catch (Exception e) {
@@ -44,10 +45,10 @@ public class SolicitudCitaController {
 
     @GetMapping("/list")
     @PreAuthorize("hasRole('FUNC')")
-    public ResponseEntity<Object> obtenerSolicitudes() {
+    public ResponseEntity<Object> getSolicitudes() {
 
         try {
-            List<SolicitudResponse> response = solicitudCitaService.obtenerSolicitudes();
+            List<SolicitudResponse> response = solicitudCitaService.getSolicitudes();
             return ResponseEntity.ok(response);
 
         } catch (Exception e) {
@@ -58,9 +59,9 @@ public class SolicitudCitaController {
 
     @PostMapping("/asignar")
     @PreAuthorize("hasRole('FUNC')")
-    public ResponseEntity<Object> asignarSolicitud(@RequestParam Long idSolicitud, @RequestParam String username) {
+    public ResponseEntity<Object> assignSolicitud(@RequestParam Long idSolicitud, @RequestParam String username) {
         try {
-            solicitudCitaService.asignarSolicitud(idSolicitud, username);
+            solicitudCitaService.assignSolicitud(idSolicitud, username);
             return ResponseEntity.status(HttpStatus.CREATED).body(Map.of("message", "Asignacion creada correctamente"));
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
@@ -69,10 +70,10 @@ public class SolicitudCitaController {
 
     @GetMapping("/no-asignadas")
     @PreAuthorize("hasRole('FUNC')")
-    public ResponseEntity<Object> obtenerSolicitudNoAsignadas() {
+    public ResponseEntity<Object> getSolicitudesunassigned() {
 
         try {
-            List<SolicitudResponse> response = solicitudCitaService.obtenerSolicitudesNoAsignadas();
+            List<SolicitudResponse> response = solicitudCitaService.getSolicitudesUnassigned();
             return ResponseEntity.ok(response);
 
         } catch (Exception e) {
@@ -83,10 +84,10 @@ public class SolicitudCitaController {
 
     @GetMapping("/asignada/{username}")
     @PreAuthorize("hasRole('FUNC')")
-    public ResponseEntity<Object> obtenerSolicitudAsignada(@PathVariable String username) {
+    public ResponseEntity<Object> getSolicitudAsssignByUser(@PathVariable String username) {
 
         try {
-            List<SolicitudResponse> response = solicitudCitaService.obtenerSolicitudesAsignadas(username);
+            List<SolicitudResponse> response = solicitudCitaService.getSolicitudesAssignByUser(username);
             return ResponseEntity.ok(response);
 
         } catch (Exception e) {
@@ -98,10 +99,10 @@ public class SolicitudCitaController {
     
     @PostMapping("/terminar/{id}")
     @PreAuthorize("hasRole('FUNC')")
-    public ResponseEntity<Object> obtenerSolicitudAsignada(@PathVariable Long id) {
+    public ResponseEntity<Object> getSolicitudAssignById(@PathVariable Long id) {
 
         try {
-            solicitudCitaService.terminarSolicitud(id);
+            solicitudCitaService.finishSolicitudById(id);
             return ResponseEntity.status(HttpStatus.CREATED).body((Map.of("message","Solicitud terminada con exito")));
 
         } catch (Exception e) {
@@ -109,5 +110,21 @@ public class SolicitudCitaController {
         }
 
     }
+
+    
+    @GetMapping("/citas-by-rut/{rut}")
+    @PreAuthorize("hasRole('FUNC')")
+    public ResponseEntity<Object> getSolicituCitasByRut(@PathVariable Integer rut) {
+
+        try {
+            List<SolicitudCitaResponse> response = solicitudCitaService.getSolicituCitasByRut(rut);
+            return ResponseEntity.ok(response);
+
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
+        }
+
+    }
+
 
 }

@@ -32,37 +32,37 @@ public class TramiteController {
 
     @PostMapping
     @PreAuthorize("hasRole('FUNC')")
-    public ResponseEntity<Tramite> crearTramite(@RequestBody Tramite tramite) {
-        Tramite nuevoTramite = tramiteService.crearTramite(tramite);
+    public ResponseEntity<Tramite> createTramite(@RequestBody Tramite tramite) {
+        Tramite nuevoTramite = tramiteService.createTramite(tramite);
         return new ResponseEntity<>(nuevoTramite, HttpStatus.CREATED);
     }
 
     @GetMapping
     @PreAuthorize("hasRole('FUNC')")
-    public ResponseEntity<List<Tramite>> obtenerTodosLosTramites() {
-        List<Tramite> tramites = tramiteService.obtenerTodosLosTramites();
+    public ResponseEntity<List<Tramite>> getAllTramites() {
+        List<Tramite> tramites = tramiteService.getAllTramites();
         return new ResponseEntity<>(tramites, HttpStatus.OK);
     }
 
     @GetMapping("/{id}")
     @PreAuthorize("hasRole('FUNC')")
-    public ResponseEntity<Tramite> obtenerTramitePorId(@PathVariable Long id) {
-        Optional<Tramite> tramite = tramiteService.obtenerTramitePorId(id);
+    public ResponseEntity<Tramite> getTramiteById(@PathVariable Long id) {
+        Optional<Tramite> tramite = tramiteService.getTramiteById(id);
         return tramite.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND).build());
     }
 
     @PutMapping("/{id}")
     @PreAuthorize("hasRole('FUNC')")
-    public ResponseEntity<Tramite> actualizarTramite(@PathVariable Long id, @RequestBody Tramite tramite) {
-        Tramite tramiteActualizado = tramiteService.actualizarTramite(id, tramite);
+    public ResponseEntity<Tramite> updateTramite(@PathVariable Long id, @RequestBody Tramite tramite) {
+        Tramite tramiteActualizado = tramiteService.updateTramite(id, tramite);
         return tramiteActualizado != null ? new ResponseEntity<>(tramiteActualizado, HttpStatus.OK)
                 : ResponseEntity.status(HttpStatus.NOT_FOUND).build();
     }
 
     @DeleteMapping("/{id}")
     @PreAuthorize("hasRole('FUNC')")
-    public ResponseEntity<Void> eliminarTramite(@PathVariable Long id) {
-        boolean eliminado = tramiteService.eliminarTramite(id);
+    public ResponseEntity<Void> deleteTramite(@PathVariable Long id) {
+        boolean eliminado = tramiteService.deleteTramiteById(id);
         return eliminado ? ResponseEntity.noContent().build() : ResponseEntity.status(HttpStatus.NOT_FOUND).build();
     }
 

@@ -4,11 +4,13 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.agendalc.agendalc.dto.PersonaResponse;
+import com.agendalc.agendalc.dto.SolicitudCitaResponse;
 import com.agendalc.agendalc.dto.SolicitudResponse;
 import com.agendalc.agendalc.entities.SolicitudCita;
 import com.agendalc.agendalc.entities.SolicitudCita.EstadoSolicitud;
 import com.agendalc.agendalc.repositories.SolicitudCitaRepository;
 
+import java.time.LocalDate;
 import java.util.List;
 
 @Service
@@ -23,7 +25,7 @@ public class SolicitudCitaService {
         this.apiService = apiService;
     }
 
-    public List<SolicitudResponse> obtenerSolicitudes() {
+    public List<SolicitudResponse> getSolicitudes() {
 
         List<SolicitudCita> solicitudes = solicitudCitaRepository.findAll();
 
@@ -32,7 +34,7 @@ public class SolicitudCitaService {
 
                     SolicitudResponse response = new SolicitudResponse();
 
-                    PersonaResponse personaResponse = apiService.obtenerDatos(sol.getCita().getRut());
+                    PersonaResponse personaResponse = apiService.getPersonaInfo(sol.getCita().getRut());
 
                     String nombre = personaResponse.getNombres() + " ";
                     String paterno = personaResponse.getPaterno() + " ";
@@ -42,18 +44,19 @@ public class SolicitudCitaService {
                     response.setVrut(personaResponse.getVrut());
 
                     response.setIdSolicitud(sol.getIdSolicitud());
-                    response.setFechaSolicitud(sol.getFechaSolicitud().toLocalDate());
+                    response.setFechaSolicitud(sol.getFechaSolicitud());
                     response.setAsignadoA(sol.getAsignadoA());
                     response.setRut(sol.getCita().getRut());
                     response.setFechaHoraCita(sol.getCita().getFechaHora());
                     response.setEstadoSolicitud(sol.getEstado().name());
+                    response.setFechaFinalizacion(sol.getFechaFinalizacion());
 
                     return response;
                 }).toList();
 
     }
 
-    public List<SolicitudResponse> obtenerSolicitudesPendientes() {
+    public List<SolicitudResponse> getSolicitudesPendientes() {
 
         List<SolicitudCita> solicitudes = solicitudCitaRepository.findByEstado(SolicitudCita.EstadoSolicitud.PENDIENTE);
 
@@ -62,7 +65,7 @@ public class SolicitudCitaService {
 
                     SolicitudResponse response = new SolicitudResponse();
 
-                    PersonaResponse personaResponse = apiService.obtenerDatos(sol.getCita().getRut());
+                    PersonaResponse personaResponse = apiService.getPersonaInfo(sol.getCita().getRut());
 
                     String nombre = personaResponse.getNombres() + " ";
                     String paterno = personaResponse.getPaterno() + " ";
@@ -72,11 +75,12 @@ public class SolicitudCitaService {
                     response.setVrut(personaResponse.getVrut());
 
                     response.setIdSolicitud(sol.getIdSolicitud());
-                    response.setFechaSolicitud(sol.getFechaSolicitud().toLocalDate());
+                    response.setFechaSolicitud(sol.getFechaSolicitud());
                     response.setAsignadoA(sol.getAsignadoA());
                     response.setRut(sol.getCita().getRut());
                     response.setFechaHoraCita(sol.getCita().getFechaHora());
                     response.setEstadoSolicitud(sol.getEstado().name());
+                    response.setFechaFinalizacion(sol.getFechaFinalizacion());
 
                     return response;
                 }).toList();
@@ -84,7 +88,7 @@ public class SolicitudCitaService {
     }
 
     @Transactional
-    public void asignarSolicitud(Long idSolicitud, String loginUsuario) {
+    public void assignSolicitud(Long idSolicitud, String loginUsuario) {
         SolicitudCita solicitud = solicitudCitaRepository.findById(idSolicitud)
                 .orElseThrow(() -> new IllegalArgumentException("Solicitud no encontrada"));
 
@@ -92,18 +96,17 @@ public class SolicitudCitaService {
         solicitudCitaRepository.save(solicitud);
     }
 
-
-
     @Transactional
-    public void terminarSolicitud(Long idSolicitud) {
+    public void finishSolicitudById(Long idSolicitud) {
         SolicitudCita solicitud = solicitudCitaRepository.findById(idSolicitud)
                 .orElseThrow(() -> new IllegalArgumentException("Solicitud no encontrada"));
 
         solicitud.setEstado(EstadoSolicitud.FINALIZADA);
+        solicitud.setFechaFinalizacion(LocalDate.now());
         solicitudCitaRepository.save(solicitud);
     }
 
-    public List<SolicitudResponse> obtenerSolicitudesNoAsignadas() {
+    public List<SolicitudResponse> getSolicitudesUnassigned() {
 
         List<SolicitudCita> solicitudes = solicitudCitaRepository.findByAsignadoAIsNull();
 
@@ -113,7 +116,7 @@ public class SolicitudCitaService {
 
                     response.setRut(sol.getCita().getRut());
 
-                    PersonaResponse personaResponse = apiService.obtenerDatos(sol.getCita().getRut());
+                    PersonaResponse personaResponse = apiService.getPersonaInfo(sol.getCita().getRut());
 
                     String nombre = personaResponse.getNombres() + " ";
                     String paterno = personaResponse.getPaterno() + " ";
@@ -123,7 +126,7 @@ public class SolicitudCitaService {
                     response.setVrut(personaResponse.getVrut());
 
                     response.setIdSolicitud(sol.getIdSolicitud());
-                    response.setFechaSolicitud(sol.getFechaSolicitud().toLocalDate());
+                    response.setFechaSolicitud(sol.getFechaSolicitud());
                     response.setAsignadoA(sol.getAsignadoA());
 
                     response.setFechaHoraCita(sol.getCita().getFechaHora());
@@ -134,7 +137,7 @@ public class SolicitudCitaService {
 
     }
 
-    public List<SolicitudResponse> obtenerSolicitudesAsignadas(String username) {
+    public List<SolicitudResponse> getSolicitudesAssignByUser(String username) {
 
         List<SolicitudCita> solicitudes = solicitudCitaRepository.findByAsignadoA(username);
 
@@ -144,7 +147,7 @@ public class SolicitudCitaService {
 
                     response.setRut(sol.getCita().getRut());
 
-                    PersonaResponse personaResponse = apiService.obtenerDatos(sol.getCita().getRut());
+                    PersonaResponse personaResponse = apiService.getPersonaInfo(sol.getCita().getRut());
 
                     String nombre = personaResponse.getNombres() + " ";
                     String paterno = personaResponse.getPaterno() + " ";
@@ -154,7 +157,7 @@ public class SolicitudCitaService {
                     response.setVrut(personaResponse.getVrut());
 
                     response.setIdSolicitud(sol.getIdSolicitud());
-                    response.setFechaSolicitud(sol.getFechaSolicitud().toLocalDate());
+                    response.setFechaSolicitud(sol.getFechaSolicitud());
                     response.setAsignadoA(sol.getAsignadoA());
 
                     response.setFechaHoraCita(sol.getCita().getFechaHora());
@@ -163,6 +166,36 @@ public class SolicitudCitaService {
                     return response;
                 }).toList();
 
+    }
+
+    public List<SolicitudCitaResponse> getSolicituCitasByRut(Integer rut) {
+
+        List<SolicitudCita> citas = solicitudCitaRepository.findByCitaRut(rut);
+
+        return citas.stream().map(cita -> {
+
+            SolicitudCitaResponse response = new SolicitudCitaResponse();
+
+            PersonaResponse personaResponse = apiService.getPersonaInfo(cita.getCita().getRut());
+
+            String nombre = personaResponse.getNombres() + " ";
+            String paterno = personaResponse.getPaterno() + " ";
+            String materno = personaResponse.getMaterno();
+
+            response.setEstado(cita.getEstado().name());
+            response.setFechaSolicitud(cita.getFechaSolicitud());
+            response.setRut(cita.getCita().getRut());
+            response.setFechaAgenda(cita.getCita().getAgenda().getFecha());
+            response.setIdBloque(cita.getCita().getBloqueHorario().getIdBloque());
+            response.setHoraInicioBloque(cita.getCita().getBloqueHorario().getHoraInicio());
+            response.setHoraFinBloque(cita.getCita().getBloqueHorario().getHoraFin());
+
+            response.setNombre(nombre.concat(paterno).concat(materno));
+            response.setVrut(personaResponse.getVrut());
+
+            return response;
+
+        }).toList();
     }
 
 }

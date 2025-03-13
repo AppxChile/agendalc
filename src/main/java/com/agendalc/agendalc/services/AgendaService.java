@@ -11,16 +11,18 @@ import com.agendalc.agendalc.repositories.TramiteRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 @Service
 public class AgendaService {
 
-    private  static final String MSG_AGENDA="Agenda no encontrada con ID: ";
-    private  static final String MSG_BLOQUE="Bloque horario no encontrado ";
+    private static final String MSG_AGENDA = "Agenda no encontrada con ID: ";
+    private static final String MSG_BLOQUE = "Bloque horario no encontrado ";
 
     private final AgendaRepository agendaRepository;
     private final TramiteRepository tramiteRepository;
@@ -34,52 +36,47 @@ public class AgendaService {
     }
 
     @Transactional
-    public Agenda crearAgenda(AgendaRequest request) {
+    public Agenda createAgenda(AgendaRequest request) {
 
         Tramite tramite = tramiteRepository.findById(request.getIdTramite())
                 .orElseThrow(() -> new RuntimeException("Trámite no encontrado"));
-
-        Agenda agenda = new Agenda();
-        agenda.setTramite(tramite);
-        agenda.setFecha(request.getFecha());
 
         if (request.getBloqueHorario() == null || request.getBloqueHorario().isEmpty()) {
             throw new IllegalArgumentException("La lista de bloques horarios está vacía o es nula");
         }
 
-        Set<BloqueHorario> bloques = new HashSet<>();
+        Set<BloqueHorario> bloques = request.getBloqueHorario().stream()
+                .map(this::getOrCreateBloque)
+                .collect(Collectors.toSet());
 
-        for (BloqueHorario bloqueRequest : request.getBloqueHorario()) {
-            if (bloqueRequest.getIdBloque() == null) {
-                BloqueHorario nuevoBloque = new BloqueHorario();
-                nuevoBloque.setHoraInicio(bloqueRequest.getHoraInicio());
-                nuevoBloque.setHoraFin(bloqueRequest.getHoraFin());
-                nuevoBloque.setCuposDisponibles(bloqueRequest.getCuposDisponibles());
-
-                bloqueRequest = bloqueHorarioRepository.save(nuevoBloque);
-            } else {
-                bloqueRequest = bloqueHorarioRepository.findById(bloqueRequest.getIdBloque())
-                        .orElseThrow(() -> new RuntimeException(MSG_BLOQUE));
-            }
-
-            bloques.add(bloqueRequest);
-        }
-
+        Agenda agenda = new Agenda();
+        agenda.setTramite(tramite);
+        agenda.setFecha(request.getFecha());
         agenda.setBloquesHorarios(bloques);
 
         return agendaRepository.save(agenda);
     }
 
-    public List<Agenda> obtenerTodasLasAgendas() {
+    public List<Agenda> getAllAgendas() {
         return agendaRepository.findAll();
     }
 
-    public Optional<Agenda> obtenerAgendaPorId(Long id) {
+    private BloqueHorario getOrCreateBloque(BloqueHorario bloqueRequest) {
+        return (bloqueRequest.getIdBloque() == null)
+                ? bloqueHorarioRepository.save(new BloqueHorario(
+                        bloqueRequest.getHoraInicio(),
+                        bloqueRequest.getHoraFin(),
+                        bloqueRequest.getCuposDisponibles()))
+                : bloqueHorarioRepository.findById(bloqueRequest.getIdBloque())
+                        .orElseThrow(() -> new RuntimeException("Bloque horario no encontrado"));
+    }
+
+    public Optional<Agenda> getAgendaById(Long id) {
         return agendaRepository.findById(id);
     }
 
     @Transactional
-    public Agenda actualizarAgenda(Long id, Agenda agendaActualizada) {
+    public Agenda updateAgenda(Long id, Agenda agendaActualizada) {
         if (agendaRepository.existsById(id)) {
             agendaActualizada.setIdAgenda(id);
             return agendaRepository.save(agendaActualizada);
@@ -88,7 +85,7 @@ public class AgendaService {
     }
 
     @Transactional
-    public boolean eliminarAgenda(Long id) {
+    public boolean deleteAgendaById(Long id) {
         if (agendaRepository.existsById(id)) {
             agendaRepository.deleteById(id);
             return true;
@@ -97,85 +94,83 @@ public class AgendaService {
     }
 
     @Transactional
-    public Agenda agregarBloquesAHorario(Long idAgenda, List<BloqueHorario> bloquesHorarios) {
+    public Agenda addBloquesAHorario(Long idAgenda, List<BloqueHorario> bloquesHorarios) {
         Agenda agenda = agendaRepository.findById(idAgenda)
-                .orElseThrow(() -> new IllegalArgumentException(MSG_AGENDA+ idAgenda));
+                .orElseThrow(() -> new IllegalArgumentException(MSG_AGENDA + idAgenda));
 
         if (bloquesHorarios == null || bloquesHorarios.isEmpty()) {
             throw new IllegalArgumentException("La lista de bloques horarios está vacía o es nula");
         }
 
-        Set<BloqueHorario> bloquesExistentes = agenda.getBloquesHorarios();
-        if (bloquesExistentes == null) {
-            bloquesExistentes = new HashSet<>();
-        }
+        // Usamos stream() para procesar la lista de bloques y agregar los nuevos o
+        // existentes
+        Set<BloqueHorario> nuevosBloques = bloquesHorarios.stream()
+                .map(this::getOrCreateBloque)
+                .collect(Collectors.toSet());
 
-        Set<BloqueHorario> nuevosBloques = new HashSet<>();
-
-        for (BloqueHorario bloque : bloquesHorarios) {
-            if (bloque.getIdBloque() == null) {
-                BloqueHorario nuevoBloque = bloqueHorarioRepository.save(bloque);
-                nuevosBloques.add(nuevoBloque);
-            } else {
-                BloqueHorario bloqueExistente = bloqueHorarioRepository.findById(bloque.getIdBloque())
-                        .orElseThrow(() -> new IllegalArgumentException(
-                            MSG_BLOQUE + bloque.getIdBloque()));
-                nuevosBloques.add(bloqueExistente);
-            }
-        }
-
-        bloquesExistentes.addAll(nuevosBloques);
-        agenda.setBloquesHorarios(bloquesExistentes);
+        // Agregar los nuevos bloques a la agenda
+        agenda.getBloquesHorarios().addAll(nuevosBloques);
 
         return agendaRepository.save(agenda);
     }
 
     @Transactional
-    public Agenda eliminarBloqueDeAgenda(Long idAgenda, Long idBloqueHorario) {
+    public Agenda deleteBloqueDeAgenda(Long idAgenda, Long idBloqueHorario) {
         Agenda agenda = agendaRepository.findById(idAgenda)
-                .orElseThrow(() -> new IllegalArgumentException(MSG_AGENDA+ idAgenda));
+                .orElseThrow(() -> new IllegalArgumentException(MSG_AGENDA + idAgenda));
 
         BloqueHorario bloqueHorario = bloqueHorarioRepository.findById(idBloqueHorario)
-                .orElseThrow(
-                        () -> new IllegalArgumentException(MSG_BLOQUE+ idBloqueHorario));
+                .orElseThrow(() -> new IllegalArgumentException(MSG_BLOQUE + idBloqueHorario));
 
-        if (!agenda.getBloquesHorarios().contains(bloqueHorario)) {
+        // Eliminamos el bloque de la agenda usando removeIf (más eficiente)
+        boolean removed = agenda.getBloquesHorarios().removeIf(bh -> bh.getIdBloque().equals(idBloqueHorario));
+
+        if (!removed) {
             throw new IllegalArgumentException("El bloque horario no está asociado con esta agenda");
         }
 
-        agenda.getBloquesHorarios().remove(bloqueHorario);
-
+        // Si el bloque no tiene más referencias, lo eliminamos
         bloqueHorarioRepository.delete(bloqueHorario);
 
         return agendaRepository.save(agenda);
     }
 
     @Transactional
-    public Agenda actualizarBloquesHorariosDeAgenda(Long idAgenda, List<BloqueHorario> bloquesHorarioActualizados) {
+    public Agenda updateBloquesHorariosDeAgenda(Long idAgenda, List<BloqueHorario> bloquesHorarioActualizados) {
         Agenda agenda = agendaRepository.findById(idAgenda)
-                .orElseThrow(() -> new IllegalArgumentException(MSG_AGENDA+ idAgenda));
-    
+                .orElseThrow(() -> new IllegalArgumentException(MSG_AGENDA + idAgenda));
+
         if (bloquesHorarioActualizados == null || bloquesHorarioActualizados.isEmpty()) {
             throw new IllegalArgumentException("La lista de bloques horarios está vacía");
         }
-    
+
+        // Obtener los bloques existentes en un solo query
+        Map<Long, BloqueHorario> bloquesMap = bloqueHorarioRepository.findAllById(
+                bloquesHorarioActualizados.stream().map(BloqueHorario::getIdBloque).toList()).stream()
+                .collect(Collectors.toMap(BloqueHorario::getIdBloque, Function.identity()));
+
         for (BloqueHorario nuevoBloqueHorario : bloquesHorarioActualizados) {
-            BloqueHorario bloqueHorario = bloqueHorarioRepository.findById(nuevoBloqueHorario.getIdBloque())
-                    .orElseThrow(() -> new IllegalArgumentException(MSG_BLOQUE+ nuevoBloqueHorario.getIdBloque()));
-    
-            if (!agenda.getBloquesHorarios().contains(bloqueHorario)) {
-                throw new IllegalArgumentException(MSG_BLOQUE + nuevoBloqueHorario.getIdBloque() + " no está asociado con esta agenda");
+            BloqueHorario bloqueHorario = bloquesMap.get(nuevoBloqueHorario.getIdBloque());
+
+            if (bloqueHorario == null) {
+                throw new IllegalArgumentException(MSG_BLOQUE + nuevoBloqueHorario.getIdBloque());
             }
-    
+
+            if (!agenda.getBloquesHorarios().contains(bloqueHorario)) {
+                throw new IllegalArgumentException(
+                        MSG_BLOQUE + nuevoBloqueHorario.getIdBloque() + " no está asociado con esta agenda");
+            }
+
+            // Actualizar valores
             bloqueHorario.setHoraInicio(nuevoBloqueHorario.getHoraInicio());
             bloqueHorario.setHoraFin(nuevoBloqueHorario.getHoraFin());
             bloqueHorario.setCuposDisponibles(nuevoBloqueHorario.getCuposDisponibles());
-    
-            bloqueHorarioRepository.save(bloqueHorario);
         }
-    
-        return agenda; 
+
+        // Guardar todos los bloques en una sola operación
+        bloqueHorarioRepository.saveAll(bloquesMap.values());
+
+        return agendaRepository.save(agenda);
     }
-    
 
 }

@@ -11,6 +11,9 @@ public class SolicitudResponse {
     private Integer rut;
     private String vrut;
     private String nonbre;
+    private LocalDate fechaFinalizacion;
+
+    
 
 
     private LocalDateTime fechaHoraCita;
@@ -82,6 +85,14 @@ public class SolicitudResponse {
 
     public void setVrut(String vrut) {
         this.vrut = vrut;
+    }
+
+    public LocalDate getFechaFinalizacion() {
+        return fechaFinalizacion;
+    }
+
+    public void setFechaFinalizacion(LocalDate fechaFinalizacion) {
+        this.fechaFinalizacion = fechaFinalizacion;
     }
 
 }
