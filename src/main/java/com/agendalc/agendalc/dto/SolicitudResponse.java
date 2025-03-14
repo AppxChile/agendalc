@@ -12,13 +12,8 @@ public class SolicitudResponse {
     private String vrut;
     private String nonbre;
     private LocalDate fechaFinalizacion;
-
-    
-
-
     private LocalDateTime fechaHoraCita;
     private String estadoSolicitud;
-
 
     public String getNonbre() {
         return nonbre;
@@ -27,7 +22,6 @@ public class SolicitudResponse {
     public void setNonbre(String nonbre) {
         this.nonbre = nonbre;
     }
-
 
     public Long getIdSolicitud() {
         return idSolicitud;
@@ -76,8 +70,6 @@ public class SolicitudResponse {
     public void setEstadoSolicitud(String estadoSolicitud) {
         this.estadoSolicitud = estadoSolicitud;
     }
-
-
 
     public String getVrut() {
         return vrut;

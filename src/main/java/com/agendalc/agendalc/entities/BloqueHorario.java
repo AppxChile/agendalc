@@ -20,29 +20,20 @@ public class BloqueHorario {
     private LocalTime horaFin;
 
     @Column(nullable = false)
-    private int cuposDisponibles; 
+    private int cuposDisponibles;
 
     @ManyToMany(mappedBy = "bloquesHorarios")
     @JsonIgnore
     private Set<Agenda> agendas = new HashSet<>();
 
-
-    
-
     public BloqueHorario() {
     }
-
-   
-    
 
     public BloqueHorario(LocalTime horaInicio, LocalTime horaFin, int cuposDisponibles) {
         this.horaInicio = horaInicio;
         this.horaFin = horaFin;
         this.cuposDisponibles = cuposDisponibles;
     }
-
-
-
 
     public Long getIdBloque() {
         return idBloque;

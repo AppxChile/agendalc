@@ -14,13 +14,12 @@ public class SolicitudCita {
     @JoinColumn(name = "id_cita", nullable = false, unique = true)
     private Cita cita;
 
-    @Column(nullable = true) 
+    @Column(nullable = true)
     private String asignadoA;
 
     @Column(nullable = false, updatable = false)
     private LocalDate fechaSolicitud;
 
-    
     private LocalDate fechaFinalizacion;
 
     @Enumerated(EnumType.STRING)
@@ -28,9 +27,9 @@ public class SolicitudCita {
     private EstadoSolicitud estado;
 
     public enum EstadoSolicitud {
-        PENDIENTE, 
-        ASIGNADA,  
-        FINALIZADA 
+        PENDIENTE,
+        ASIGNADA,
+        FINALIZADA
     }
 
     @PrePersist
@@ -61,7 +60,7 @@ public class SolicitudCita {
 
     public void setAsignadoA(String asignadoA) {
         this.asignadoA = asignadoA;
-        this.estado = EstadoSolicitud.ASIGNADA; 
+        this.estado = EstadoSolicitud.ASIGNADA;
     }
 
     public LocalDate getFechaSolicitud() {
@@ -88,5 +87,4 @@ public class SolicitudCita {
         this.fechaFinalizacion = fechaFinalizacion;
     }
 
-    
 }

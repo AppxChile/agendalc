@@ -4,7 +4,6 @@ import java.time.LocalDateTime;
 
 import org.hibernate.annotations.CreationTimestamp;
 
-
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -22,21 +21,19 @@ public class Cita {
     private Long idCita;
 
     @Column(nullable = false)
-    private Integer rut; 
+    private Integer rut;
 
     @ManyToOne
     @JoinColumn(name = "id_agenda", nullable = false)
     private Agenda agenda;
 
-     @ManyToOne(fetch = FetchType.EAGER)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "id_bloque_horario", nullable = false)
-    private BloqueHorario bloqueHorario; 
+    private BloqueHorario bloqueHorario;
 
     @Column(nullable = false, updatable = false)
     @CreationTimestamp
     private LocalDateTime fechaHora;
-
-   
 
     public Long getIdCita() {
         return idCita;
@@ -70,8 +67,6 @@ public class Cita {
         this.fechaHora = fechaHora;
     }
 
-
-
     public BloqueHorario getBloqueHorario() {
         return bloqueHorario;
     }
@@ -80,5 +75,4 @@ public class Cita {
         this.bloqueHorario = bloqueHorario;
     }
 
-    
 }

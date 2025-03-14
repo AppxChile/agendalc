@@ -59,7 +59,4 @@ public class Tramite {
         this.agendas = agendas;
     }
 
-
-
-    
 }

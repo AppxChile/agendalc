@@ -96,14 +96,13 @@ public class SolicitudCitaController {
 
     }
 
-    
     @PostMapping("/terminar/{id}")
     @PreAuthorize("hasRole('FUNC')")
     public ResponseEntity<Object> getSolicitudAssignById(@PathVariable Long id) {
 
         try {
             solicitudCitaService.finishSolicitudById(id);
-            return ResponseEntity.status(HttpStatus.CREATED).body((Map.of("message","Solicitud terminada con exito")));
+            return ResponseEntity.status(HttpStatus.CREATED).body((Map.of("message", "Solicitud terminada con exito")));
 
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
@@ -111,7 +110,6 @@ public class SolicitudCitaController {
 
     }
 
-    
     @GetMapping("/citas-by-rut/{rut}")
     @PreAuthorize("hasRole('FUNC')")
     public ResponseEntity<Object> getSolicituCitasByRut(@PathVariable Integer rut) {
@@ -125,6 +123,5 @@ public class SolicitudCitaController {
         }
 
     }
-
 
 }

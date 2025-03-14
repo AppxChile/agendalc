@@ -57,18 +57,18 @@ public class JwtValidationFilter extends OncePerRequestFilter {
             if (username != null) {
                 // Extraer roles (authorities) del token
                 Object authoritiesClaims = claims.get("authorities");
-    
+
                 // Convertir el string de authorities a una lista de GrantedAuthority
                 Collection<? extends GrantedAuthority> authorities = Arrays.asList(
                         new ObjectMapper()
                                 .addMixIn(SimpleGrantedAuthority.class, SimpleGrantedAuthorityJsonCreator.class)
                                 .readValue(authoritiesClaims.toString().getBytes(), SimpleGrantedAuthority[].class));
-    
+
                 // Crear objeto de autenticación con las autoridades
                 UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
                         username, null, authorities);
                 authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
-    
+
                 // Establecer usuario autenticado en el contexto de seguridad
                 SecurityContextHolder.getContext().setAuthentication(authToken);
             }

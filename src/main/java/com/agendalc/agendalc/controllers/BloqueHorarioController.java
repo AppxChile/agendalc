@@ -19,8 +19,8 @@ public class BloqueHorarioController {
 
     private final BloqueHorarioService bloqueHorarioService;
 
-    public BloqueHorarioController(BloqueHorarioService bloqueHorarioService){
-        this.bloqueHorarioService =bloqueHorarioService;
+    public BloqueHorarioController(BloqueHorarioService bloqueHorarioService) {
+        this.bloqueHorarioService = bloqueHorarioService;
     }
 
     // Crear un nuevo bloque horario
@@ -54,24 +54,25 @@ public class BloqueHorarioController {
     // Actualizar un bloque horario
     @PutMapping("/{id}")
     @PreAuthorize("hasRole('FUNC')")
-    public ResponseEntity<BloqueHorario> updateBloqueHorario(@PathVariable Long id, @RequestBody BloqueHorario bloqueHorario) {
+    public ResponseEntity<BloqueHorario> updateBloqueHorario(@PathVariable Long id,
+            @RequestBody BloqueHorario bloqueHorario) {
         BloqueHorario bloqueHorarioActualizado = bloqueHorarioService.updateBloqueHorario(id, bloqueHorario);
-        return bloqueHorarioActualizado != null ? ResponseEntity.ok(bloqueHorarioActualizado) : ResponseEntity.notFound().build();
+        return bloqueHorarioActualizado != null ? ResponseEntity.ok(bloqueHorarioActualizado)
+                : ResponseEntity.notFound().build();
     }
 
     // Eliminar un bloque horario
-  @DeleteMapping("/{id}")
-@PreAuthorize("hasRole('FUNC')")
-public ResponseEntity<String> deleteBloqueHorario(@PathVariable Long id) {
-    try {
-        bloqueHorarioService.deleteBloqueHorarioById(id);
-        return ResponseEntity.ok("Registro eliminado correctamente");
-    } catch (EntityNotFoundException e) {
-        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
-    } catch (Exception e) {
-        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error al eliminar: " + e.getMessage());
+    @DeleteMapping("/{id}")
+    @PreAuthorize("hasRole('FUNC')")
+    public ResponseEntity<String> deleteBloqueHorario(@PathVariable Long id) {
+        try {
+            bloqueHorarioService.deleteBloqueHorarioById(id);
+            return ResponseEntity.ok("Registro eliminado correctamente");
+        } catch (EntityNotFoundException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error al eliminar: " + e.getMessage());
+        }
     }
-}
-
 
 }

@@ -10,10 +10,10 @@ import com.agendalc.agendalc.entities.BloqueHorario;
 import com.agendalc.agendalc.entities.Cita;
 
 @Repository
-public interface CitaRepository extends JpaRepository<Cita,Long> {
-    
+public interface CitaRepository extends JpaRepository<Cita, Long> {
+
     long countByAgendaAndBloqueHorario(Agenda agenda, BloqueHorario bloqueHorario);
-    
+
     List<Cita> findByBloqueHorario(BloqueHorario bloqueHorario);
 
 }

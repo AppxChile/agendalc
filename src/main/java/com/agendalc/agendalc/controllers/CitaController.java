@@ -28,7 +28,6 @@ public class CitaController {
         this.citaService = citaService;
     }
 
-    
     @PostMapping
     @PreAuthorize("hasRole('USER')")
     public ResponseEntity<Object> createCita(@RequestBody CitaRequest citaRequest) {
@@ -38,7 +37,7 @@ public class CitaController {
 
         } catch (EntityNotFoundException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                    .body(Map.of(ERROR_KEY, "No se encontró la agenda o bloque horario"+ e.getMessage()));
+                    .body(Map.of(ERROR_KEY, "No se encontró la agenda o bloque horario" + e.getMessage()));
 
         } catch (IllegalArgumentException e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)

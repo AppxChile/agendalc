@@ -14,11 +14,11 @@ public class TramiteService {
 
     private final TramiteRepository tramiteRepository;
 
-    public TramiteService(TramiteRepository tramiteRepository){
-        this.tramiteRepository=tramiteRepository;
+    public TramiteService(TramiteRepository tramiteRepository) {
+        this.tramiteRepository = tramiteRepository;
     }
 
-   @Transactional
+    @Transactional
     public Tramite createTramite(Tramite tramite) {
         return tramiteRepository.save(tramite);
     }
@@ -36,10 +36,10 @@ public class TramiteService {
     @Transactional
     public Tramite updateTramite(Long id, Tramite tramite) {
         if (tramiteRepository.existsById(id)) {
-            tramite.setIdTramite(id); 
+            tramite.setIdTramite(id);
             return tramiteRepository.save(tramite);
         }
-        return null; 
+        return null;
     }
 
     @Transactional

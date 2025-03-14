@@ -17,18 +17,14 @@ public class Agenda {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_tramite", nullable = false)
-    @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
+    @JsonIgnoreProperties({ "hibernateLazyInitializer", "handler" })
     private Tramite tramite;
 
     @Column(nullable = false)
     private LocalDate fecha;
 
     @ManyToMany
-    @JoinTable(
-        name = "agenda_bloque_horario",
-        joinColumns = @JoinColumn(name = "id_agenda"),
-        inverseJoinColumns = @JoinColumn(name = "id_bloque")
-    )
+    @JoinTable(name = "agenda_bloque_horario", joinColumns = @JoinColumn(name = "id_agenda"), inverseJoinColumns = @JoinColumn(name = "id_bloque"))
     private Set<BloqueHorario> bloquesHorarios = new HashSet<>();
 
     @OneToMany(mappedBy = "agenda", cascade = CascadeType.ALL, orphanRemoval = true)

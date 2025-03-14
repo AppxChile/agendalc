@@ -41,9 +41,6 @@ public class CitaDto {
         this.idAgenda = idAgenda;
     }
 
-
-
-
     public LocalDateTime getFechaHora() {
         return fechaHora;
     }
