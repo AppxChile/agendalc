@@ -16,4 +16,6 @@ public interface CitaRepository extends JpaRepository<Cita, Long> {
 
     List<Cita> findByBloqueHorario(BloqueHorario bloqueHorario);
 
+    List<Cita> findByRut(Integer rut);
+
 }

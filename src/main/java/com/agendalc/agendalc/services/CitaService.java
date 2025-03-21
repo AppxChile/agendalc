@@ -22,6 +22,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -122,6 +123,23 @@ public class CitaService {
 
     public Optional<Cita> getCitaById(Long id) {
         return citaRepository.findById(id);
+    }
+
+    public List<CitaDto> getCitaByRut(Integer rut) {
+
+        List<Cita> citas = citaRepository.findByRut(rut);
+
+        if (citas.isEmpty()) {
+            throw new IllegalArgumentException("No hay citas para el rut");
+        }
+
+        int mesActual = LocalDate.now().getMonthValue();
+
+        return citas.stream()
+                .map(CitaDto::new)
+                .filter(dto -> dto.getFechaHora().getMonthValue() == mesActual)
+                .toList();
+
     }
 
     @Transactional

@@ -12,6 +12,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
@@ -76,5 +77,21 @@ public class CitaController {
         boolean eliminado = citaService.deleteCitaById(id);
         return eliminado ? new ResponseEntity<>(HttpStatus.NO_CONTENT)
                 : new ResponseEntity<>(HttpStatus.NOT_FOUND);
+    }
+
+    @GetMapping("/findByRut/{rut}")
+    @PreAuthorize("hasRole('FUNC')")
+    public ResponseEntity<Object> getCitabyRut(@PathVariable Integer rut) {
+        try {
+            List<CitaDto> response = citaService.getCitaByRut(rut);
+            return ResponseEntity.status(HttpStatus.OK).body(response);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.status(HttpStatus.CONFLICT).body(e.getMessage());
+            
+        }catch(Exception e){
+           return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+        }
+    
+        
     }
 }
