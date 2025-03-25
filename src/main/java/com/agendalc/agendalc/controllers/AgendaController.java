@@ -3,14 +3,14 @@ package com.agendalc.agendalc.controllers;
 import com.agendalc.agendalc.dto.AgendaRequest;
 import com.agendalc.agendalc.entities.Agenda;
 import com.agendalc.agendalc.entities.BloqueHorario;
-import com.agendalc.agendalc.services.AgendaService;
+import com.agendalc.agendalc.services.interfaces.AgendaService;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/agendalc/agendas")
@@ -26,23 +26,44 @@ public class AgendaController {
     // Crear una nueva agenda
     @PostMapping
     @PreAuthorize("hasRole('USER')")
-    public ResponseEntity<Agenda> createAgenda(@RequestBody AgendaRequest request) {
+    public ResponseEntity<Object> createAgenda(@RequestBody AgendaRequest request) {
+       try {
         Agenda nuevaAgenda = agendaService.createAgenda(request);
         return new ResponseEntity<>(nuevaAgenda, HttpStatus.CREATED);
+        
+       } catch (Exception e) {
+       return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+       }
+
+        
     }
 
     @GetMapping
     @PreAuthorize("hasRole('FUNC')")
-    public ResponseEntity<List<Agenda>> getAllAgendas() {
-        List<Agenda> agendas = agendaService.getAllAgendas();
-        return new ResponseEntity<>(agendas, HttpStatus.OK);
+    public ResponseEntity<Object> getAllAgendas() {
+
+        try {
+            List<Agenda> agendas = agendaService.getAllAgendas();
+            return new ResponseEntity<>(agendas, HttpStatus.OK);
+            
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+        }
+       
     }
 
     @GetMapping("/{id}")
     @PreAuthorize("hasRole('FUNC')")
-    public ResponseEntity<Agenda> getAgendaById(@PathVariable Long id) {
-        Optional<Agenda> agenda = agendaService.getAgendaById(id);
-        return agenda.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
+    public ResponseEntity<Object> getAgendaById(@PathVariable Long id) {
+
+        try {
+            Agenda agenda = agendaService.findById(id);
+            return ResponseEntity.ok(agenda);
+            
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+        }
+       
     }
 
     @PutMapping("/{id}")

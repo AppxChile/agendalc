@@ -4,7 +4,7 @@ import com.agendalc.agendalc.dto.CitaDto;
 import com.agendalc.agendalc.dto.CitaRequest;
 import com.agendalc.agendalc.dto.SolicitudCitaResponse;
 import com.agendalc.agendalc.entities.Cita;
-import com.agendalc.agendalc.services.CitaService;
+import com.agendalc.agendalc.services.interfaces.CitaService;
 
 import jakarta.persistence.EntityNotFoundException;
 
@@ -15,7 +15,6 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/agendalc/citas")
@@ -57,10 +56,16 @@ public class CitaController {
 
     @GetMapping("/{id}")
     @PreAuthorize("hasRole('USER')")
-    public ResponseEntity<CitaDto> getCita(@PathVariable Long id) {
-        Optional<Cita> citaOptional = citaService.getCitaById(id);
-        return citaOptional.map(cita -> new ResponseEntity<>(new CitaDto(cita), HttpStatus.OK))
-                .orElseGet(() -> new ResponseEntity<>(HttpStatus.NOT_FOUND));
+    public ResponseEntity<Object> getCita(@PathVariable Long id) {
+
+        try {
+            Cita cita = citaService.findById(id);
+            return ResponseEntity.ok(cita);
+
+        } catch (Exception e) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+
     }
 
     @PutMapping("/{id}")
@@ -88,11 +93,10 @@ public class CitaController {
             return ResponseEntity.status(HttpStatus.OK).body(response);
         } catch (IllegalArgumentException e) {
             return ResponseEntity.status(HttpStatus.CONFLICT).body(e.getMessage());
-            
-        }catch(Exception e){
-           return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
         }
-    
-        
+
     }
 }

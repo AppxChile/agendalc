@@ -1,5 +1,8 @@
 package com.agendalc.agendalc.services;
 
+import java.time.LocalDate;
+import java.util.List;
+
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -9,24 +12,23 @@ import com.agendalc.agendalc.dto.SolicitudResponse;
 import com.agendalc.agendalc.entities.SolicitudCita;
 import com.agendalc.agendalc.entities.SolicitudCita.EstadoSolicitud;
 import com.agendalc.agendalc.repositories.SolicitudCitaRepository;
-
-import java.time.LocalDate;
-import java.util.List;
+import com.agendalc.agendalc.services.interfaces.ApiPersonaService;
+import com.agendalc.agendalc.services.interfaces.SolicitudCitaService;
 
 @Service
-public class SolicitudCitaService {
+public class SolicitudCitaServiceImpl implements SolicitudCitaService {
 
     private final SolicitudCitaRepository solicitudCitaRepository;
+    private final ApiPersonaService apiPersonaService;
 
-    private final ApiService apiService;
-
-    public SolicitudCitaService(SolicitudCitaRepository solicitudCitaRepository, ApiService apiService) {
+    public SolicitudCitaServiceImpl(SolicitudCitaRepository solicitudCitaRepository,
+            ApiPersonaService apiPersonaService) {
         this.solicitudCitaRepository = solicitudCitaRepository;
-        this.apiService = apiService;
+        this.apiPersonaService = apiPersonaService;
     }
 
+    @Override
     public List<SolicitudResponse> getSolicitudes() {
-
         List<SolicitudCita> solicitudes = solicitudCitaRepository.findAll();
 
         return solicitudes.stream()
@@ -34,7 +36,7 @@ public class SolicitudCitaService {
 
                     SolicitudResponse response = new SolicitudResponse();
 
-                    PersonaResponse personaResponse = apiService.getPersonaInfo(sol.getCita().getRut());
+                    PersonaResponse personaResponse = apiPersonaService.getPersonaInfo(sol.getCita().getRut());
 
                     String nombre = personaResponse.getNombres() + " ";
                     String paterno = personaResponse.getPaterno() + " ";
@@ -56,8 +58,8 @@ public class SolicitudCitaService {
 
     }
 
+    @Override
     public List<SolicitudResponse> getSolicitudesPendientes() {
-
         List<SolicitudCita> solicitudes = solicitudCitaRepository.findByEstado(SolicitudCita.EstadoSolicitud.PENDIENTE);
 
         return solicitudes.stream()
@@ -65,7 +67,7 @@ public class SolicitudCitaService {
 
                     SolicitudResponse response = new SolicitudResponse();
 
-                    PersonaResponse personaResponse = apiService.getPersonaInfo(sol.getCita().getRut());
+                    PersonaResponse personaResponse = apiPersonaService.getPersonaInfo(sol.getCita().getRut());
 
                     String nombre = personaResponse.getNombres() + " ";
                     String paterno = personaResponse.getPaterno() + " ";
@@ -84,10 +86,10 @@ public class SolicitudCitaService {
 
                     return response;
                 }).toList();
-
     }
 
     @Transactional
+    @Override
     public void assignSolicitud(Long idSolicitud, String loginUsuario) {
         SolicitudCita solicitud = solicitudCitaRepository.findById(idSolicitud)
                 .orElseThrow(() -> new IllegalArgumentException("Solicitud no encontrada"));
@@ -97,6 +99,7 @@ public class SolicitudCitaService {
     }
 
     @Transactional
+    @Override
     public void finishSolicitudById(Long idSolicitud) {
         SolicitudCita solicitud = solicitudCitaRepository.findById(idSolicitud)
                 .orElseThrow(() -> new IllegalArgumentException("Solicitud no encontrada"));
@@ -106,8 +109,8 @@ public class SolicitudCitaService {
         solicitudCitaRepository.save(solicitud);
     }
 
+    @Override
     public List<SolicitudResponse> getSolicitudesUnassigned() {
-
         List<SolicitudCita> solicitudes = solicitudCitaRepository.findByAsignadoAIsNull();
 
         return solicitudes.stream()
@@ -116,7 +119,7 @@ public class SolicitudCitaService {
 
                     response.setRut(sol.getCita().getRut());
 
-                    PersonaResponse personaResponse = apiService.getPersonaInfo(sol.getCita().getRut());
+                    PersonaResponse personaResponse = apiPersonaService.getPersonaInfo(sol.getCita().getRut());
 
                     String nombre = personaResponse.getNombres() + " ";
                     String paterno = personaResponse.getPaterno() + " ";
@@ -134,11 +137,10 @@ public class SolicitudCitaService {
 
                     return response;
                 }).toList();
-
     }
 
+    @Override
     public List<SolicitudResponse> getSolicitudesAssignByUser(String username) {
-
         List<SolicitudCita> solicitudes = solicitudCitaRepository.findByAsignadoA(username);
 
         return solicitudes.stream()
@@ -147,7 +149,7 @@ public class SolicitudCitaService {
 
                     response.setRut(sol.getCita().getRut());
 
-                    PersonaResponse personaResponse = apiService.getPersonaInfo(sol.getCita().getRut());
+                    PersonaResponse personaResponse = apiPersonaService.getPersonaInfo(sol.getCita().getRut());
 
                     String nombre = personaResponse.getNombres() + " ";
                     String paterno = personaResponse.getPaterno() + " ";
@@ -165,18 +167,17 @@ public class SolicitudCitaService {
 
                     return response;
                 }).toList();
-
     }
 
+    @Override
     public List<SolicitudCitaResponse> getSolicituCitasByRut(Integer rut) {
-
         List<SolicitudCita> citas = solicitudCitaRepository.findByCitaRut(rut);
 
         return citas.stream().map(cita -> {
 
             SolicitudCitaResponse response = new SolicitudCitaResponse();
 
-            PersonaResponse personaResponse = apiService.getPersonaInfo(cita.getCita().getRut());
+            PersonaResponse personaResponse = apiPersonaService.getPersonaInfo(cita.getCita().getRut());
 
             String nombre = personaResponse.getNombres() + " ";
             String paterno = personaResponse.getPaterno() + " ";
@@ -196,6 +197,11 @@ public class SolicitudCitaService {
             return response;
 
         }).toList();
+    }
+
+    @Override
+    public SolicitudCita save(SolicitudCita solicitudCita) {
+        return solicitudCitaRepository.save(solicitudCita);
     }
 
 }

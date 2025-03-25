@@ -1,7 +1,6 @@
 package com.agendalc.agendalc.controllers;
 
 import java.util.List;
-import java.util.Optional;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -17,7 +16,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.agendalc.agendalc.entities.Tramite;
-import com.agendalc.agendalc.services.TramiteService;
+import com.agendalc.agendalc.services.interfaces.TramiteService;
 
 @RestController
 @RequestMapping("/api/agendalc/tramites")
@@ -32,31 +31,55 @@ public class TramiteController {
 
     @PostMapping
     @PreAuthorize("hasRole('FUNC')")
-    public ResponseEntity<Tramite> createTramite(@RequestBody Tramite tramite) {
-        Tramite nuevoTramite = tramiteService.createTramite(tramite);
-        return new ResponseEntity<>(nuevoTramite, HttpStatus.CREATED);
+    public ResponseEntity<Object> createTramite(@RequestBody Tramite tramite) {
+        try {
+            Tramite nuevoTramite = tramiteService.createTramite(tramite);
+            return new ResponseEntity<>(nuevoTramite, HttpStatus.CREATED);
+
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+        }
     }
 
     @GetMapping
     @PreAuthorize("hasRole('FUNC')")
-    public ResponseEntity<List<Tramite>> getAllTramites() {
-        List<Tramite> tramites = tramiteService.getAllTramites();
-        return new ResponseEntity<>(tramites, HttpStatus.OK);
+    public ResponseEntity<Object> getAllTramites() {
+
+        try {
+            List<Tramite> tramites = tramiteService.getAllTramites();
+            return new ResponseEntity<>(tramites, HttpStatus.OK);
+
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+        }
+
     }
 
     @GetMapping("/{id}")
     @PreAuthorize("hasRole('FUNC')")
-    public ResponseEntity<Tramite> getTramiteById(@PathVariable Long id) {
-        Optional<Tramite> tramite = tramiteService.getTramiteById(id);
-        return tramite.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND).build());
+    public ResponseEntity<Object> getTramiteById(@PathVariable Long id) {
+        try {
+            Tramite tramite = tramiteService.getTramiteById(id);
+            return new ResponseEntity<>(tramite, HttpStatus.OK);
+
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+        }
+
     }
 
     @PutMapping("/{id}")
     @PreAuthorize("hasRole('FUNC')")
-    public ResponseEntity<Tramite> updateTramite(@PathVariable Long id, @RequestBody Tramite tramite) {
-        Tramite tramiteActualizado = tramiteService.updateTramite(id, tramite);
-        return tramiteActualizado != null ? new ResponseEntity<>(tramiteActualizado, HttpStatus.OK)
-                : ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+    public ResponseEntity<Object> updateTramite(@PathVariable Long id, @RequestBody Tramite tramite) {
+
+        try {
+            Tramite tramiteActualizado = tramiteService.updateTramite(id, tramite);
+            return new ResponseEntity<>(tramiteActualizado, HttpStatus.OK);
+
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+        }
+
     }
 
     @DeleteMapping("/{id}")

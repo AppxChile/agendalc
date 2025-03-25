@@ -1,7 +1,7 @@
 package com.agendalc.agendalc.controllers;
 
 import com.agendalc.agendalc.entities.BloqueHorario;
-import com.agendalc.agendalc.services.BloqueHorarioService;
+import com.agendalc.agendalc.services.interfaces.BloqueHorarioService;
 
 import jakarta.persistence.EntityNotFoundException;
 

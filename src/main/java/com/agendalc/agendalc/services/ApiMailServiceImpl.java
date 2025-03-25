@@ -4,35 +4,26 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.springframework.http.HttpStatusCode;
+import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
-import org.springframework.http.MediaType;
 
 import com.agendalc.agendalc.config.ApiProperties;
-import com.agendalc.agendalc.dto.PersonaResponse;
+import com.agendalc.agendalc.services.interfaces.ApiMailService;
 
 import reactor.core.publisher.Mono;
 
 @Service
-public class ApiService {
+public class ApiMailServiceImpl implements ApiMailService {
 
-    private final WebClient webClientPersona;
     private final WebClient webClientMail;
 
-    public ApiService(WebClient.Builder webClientBuilder, ApiProperties apiProperties) {
-        this.webClientPersona = webClientBuilder.baseUrl(apiProperties.getPersonaUrl()).build();
+    public ApiMailServiceImpl(WebClient.Builder webClientBuilder, ApiProperties apiProperties) {
         this.webClientMail = webClientBuilder.baseUrl(apiProperties.getMailUrl()).build();
     }
 
-    public PersonaResponse getPersonaInfo(Integer rut) {
-        return webClientPersona.get()
-                .uri("/{rut}", rut) // Se agrega el RUT a la URL
-                .retrieve()
-                .bodyToMono(PersonaResponse.class)
-                .block(); // Bloquea hasta recibir la respuesta (sincrónico)
-    }
-
+    @Override
     public void sendEmail(String to, String subject, String templateName, Map<String, Object> variables) {
         try {
             webClientMail.post()
@@ -57,4 +48,5 @@ public class ApiService {
             response.put("message", e.getMessage());
         }
     }
+
 }

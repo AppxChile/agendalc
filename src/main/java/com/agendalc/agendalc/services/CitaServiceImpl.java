@@ -1,5 +1,15 @@
 package com.agendalc.agendalc.services;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Optional;
+
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
 import com.agendalc.agendalc.dto.CitaDto;
 import com.agendalc.agendalc.dto.CitaRequest;
 import com.agendalc.agendalc.dto.PersonaResponse;
@@ -9,53 +19,49 @@ import com.agendalc.agendalc.entities.BloqueHorario;
 import com.agendalc.agendalc.entities.Cita;
 import com.agendalc.agendalc.entities.SolicitudCita;
 import com.agendalc.agendalc.entities.SolicitudCita.EstadoSolicitud;
-import com.agendalc.agendalc.repositories.AgendaRepository;
-import com.agendalc.agendalc.repositories.BloqueHorarioRepository;
 import com.agendalc.agendalc.repositories.CitaRepository;
-import com.agendalc.agendalc.repositories.SolicitudCitaRepository;
+import com.agendalc.agendalc.services.interfaces.AgendaService;
+import com.agendalc.agendalc.services.interfaces.ApiMailService;
+import com.agendalc.agendalc.services.interfaces.ApiPersonaService;
+import com.agendalc.agendalc.services.interfaces.BloqueHorarioService;
+import com.agendalc.agendalc.services.interfaces.CitaService;
+import com.agendalc.agendalc.services.interfaces.SolicitudCitaService;
 
 import jakarta.persistence.EntityNotFoundException;
-import jakarta.transaction.Transactional;
-
-import org.springframework.stereotype.Service;
-
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Optional;
 
 @Service
-public class CitaService {
+public class CitaServiceImpl implements CitaService {
+
+    private final SolicitudCitaService solicitudCitaService;
 
     private final CitaRepository citaRepository;
-    private final AgendaRepository agendaRepository;
-    private final SolicitudCitaRepository solicitudCitaRepository;
-    private final BloqueHorarioRepository bloqueHorarioRepository;
-    private final ApiService apiService;
 
-    public CitaService(CitaRepository citaRepository,
-            AgendaRepository agendaRepository,
-            SolicitudCitaRepository solicitudCitaRepository,
-            BloqueHorarioRepository bloqueHorarioRepository,
-            ApiService apiService) {
+    private final AgendaService agendaService;
+
+    private final BloqueHorarioService bloqueHorarioService;
+
+    private final ApiPersonaService apiPersonaService;
+
+    private final ApiMailService apiMailService;
+
+    public CitaServiceImpl(CitaRepository citaRepository, AgendaService agendaService,
+            BloqueHorarioService bloqueHorarioService,
+            ApiPersonaService apiPersonaService,
+            ApiMailService apiMailService, SolicitudCitaService solicitudCitaService) {
         this.citaRepository = citaRepository;
-        this.agendaRepository = agendaRepository;
-        this.solicitudCitaRepository = solicitudCitaRepository;
-        this.bloqueHorarioRepository = bloqueHorarioRepository;
-        this.apiService = apiService;
-
+        this.agendaService = agendaService;
+        this.bloqueHorarioService = bloqueHorarioService;
+        this.apiPersonaService = apiPersonaService;
+        this.apiMailService = apiMailService;
+        this.solicitudCitaService = solicitudCitaService;
     }
 
-    // Crear una nueva cita
     @Transactional
+    @Override
     public CitaDto createCita(CitaRequest citaRequest) {
-        Agenda agenda = agendaRepository.findById(citaRequest.getIdAgenda())
-                .orElseThrow(() -> new EntityNotFoundException("Agenda no encontrada"));
+        Agenda agenda = agendaService.findById(citaRequest.getIdAgenda());
 
-        BloqueHorario bloqueHorario = bloqueHorarioRepository.findById(citaRequest.getIdBloqueHorario())
-                .orElseThrow(() -> new EntityNotFoundException("Bloque horario no encontrado"));
+        BloqueHorario bloqueHorario = bloqueHorarioService.findById(citaRequest.getIdBloqueHorario());
 
         if (!agenda.getBloquesHorarios().contains(bloqueHorario)) {
             throw new IllegalArgumentException("El bloque horario no pertenece a la agenda seleccionada");
@@ -65,7 +71,7 @@ public class CitaService {
             throw new IllegalStateException("No hay cupos disponibles en este bloque horario");
         }
 
-        PersonaResponse persona = apiService.getPersonaInfo(citaRequest.getRut());
+        PersonaResponse persona = apiPersonaService.getPersonaInfo(citaRequest.getRut());
 
         if (persona == null) {
             throw new EntityNotFoundException("Persona no econtrada");
@@ -80,14 +86,14 @@ public class CitaService {
         cita = citaRepository.save(cita);
 
         bloqueHorario.setCuposDisponibles(bloqueHorario.getCuposDisponibles() - 1);
-        bloqueHorarioRepository.save(bloqueHorario);
+        bloqueHorarioService.save(bloqueHorario);
 
         SolicitudCita solicitud = new SolicitudCita();
         solicitud.setCita(cita);
         solicitud.setFechaSolicitud(LocalDate.now());
         solicitud.setEstado(EstadoSolicitud.PENDIENTE);
 
-        solicitudCitaRepository.save(solicitud);
+        solicitudCitaService.save(solicitud);
 
         CitaDto citaDto = new CitaDto(cita);
 
@@ -101,9 +107,79 @@ public class CitaService {
         variables.put("fecha", fechaFormateada);
         variables.put("hora", horaFormateada);
 
-        apiService.sendEmail(persona.getEmail(), "Agenda de hora", "cita-template", variables);
+        apiMailService.sendEmail(persona.getEmail(), "Agenda de hora", "cita-template", variables);
 
         return citaDto;
+    }
+
+    @Override
+    public Cita findById(Long id) {
+        return citaRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("No existe el id"));
+    }
+
+    @Override
+    public List<SolicitudCitaResponse> getCitaByRut(Integer rut) {
+        List<Cita> citas = citaRepository.findByRut(rut);
+
+        if (citas.isEmpty()) {
+            throw new IllegalArgumentException("No hay citas para el rut");
+        }
+
+        int mesActual = LocalDate.now().getMonthValue();
+
+        return citas.stream()
+                .map(cita -> {
+
+                    SolicitudCitaResponse dto = new SolicitudCitaResponse();
+
+                    dto.setRut(cita.getRut());
+                    dto.setFechaSolicitud(cita.getFechaHora().toLocalDate());
+                    dto.setFechaAgenda(cita.getAgenda().getFecha());
+                    dto.setIdBloque(cita.getBloqueHorario().getIdBloque());
+                    dto.setHoraInicioBloque(cita.getBloqueHorario().getHoraInicio());
+                    dto.setHoraFinBloque(cita.getBloqueHorario().getHoraFin());
+
+                    PersonaResponse persona = apiPersonaService.getPersonaInfo(cita.getRut());
+
+                    dto.setVrut(persona.getVrut());
+
+                    String nombre = persona.getNombres() + " ";
+                    String paterno = persona.getPaterno() + " ";
+                    String materno = persona.getMaterno();
+
+                    dto.setNombre(nombre.concat(paterno).concat(materno));
+
+                    return dto;
+
+                })
+                .filter(dto -> dto.getFechaSolicitud().getMonthValue() == mesActual)
+                .toList();
+    }
+
+    @Transactional
+    @Override
+    public Cita updateCita(Long id, Cita citaActualizada) {
+        Optional<Cita> citaOptional = citaRepository.findById(id);
+        if (citaOptional.isPresent()) {
+            Cita citaExistente = citaOptional.get();
+            citaExistente.setRut(citaActualizada.getRut());
+            citaExistente.setAgenda(citaActualizada.getAgenda());
+            citaExistente.setFechaHora(citaActualizada.getFechaHora());
+            return citaRepository.save(citaExistente);
+        }
+        return null;
+    }
+
+    @Transactional
+    @Override
+    public boolean deleteCitaById(Long id) {
+        Optional<Cita> citaOptional = citaRepository.findById(id);
+        if (citaOptional.isPresent()) {
+            citaRepository.delete(citaOptional.get());
+            return true;
+        }
+        return false;
     }
 
     private String formatFecha(LocalDate fecha) {
@@ -122,70 +198,4 @@ public class CitaService {
 
     }
 
-    public Optional<Cita> getCitaById(Long id) {
-        return citaRepository.findById(id);
-    }
-
-    public List<SolicitudCitaResponse> getCitaByRut(Integer rut) {
-
-        List<Cita> citas = citaRepository.findByRut(rut);
-
-        if (citas.isEmpty()) {
-            throw new IllegalArgumentException("No hay citas para el rut");
-        }
-
-        int mesActual = LocalDate.now().getMonthValue();
-
-        return citas.stream()
-                .map(cita ->{
-
-                    SolicitudCitaResponse dto = new SolicitudCitaResponse();
-
-                    dto.setRut(cita.getRut());
-                    dto.setFechaSolicitud(cita.getFechaHora().toLocalDate());
-                    dto.setFechaAgenda(cita.getAgenda().getFecha());
-                    dto.setIdBloque(cita.getBloqueHorario().getIdBloque());
-                    dto.setHoraInicioBloque(cita.getBloqueHorario().getHoraInicio());
-                    dto.setHoraFinBloque(cita.getBloqueHorario().getHoraFin());
-
-                    PersonaResponse persona = apiService.getPersonaInfo(cita.getRut());
-
-                    dto.setVrut(persona.getVrut());
-
-                    String nombre = persona.getNombres() + " ";
-                    String paterno = persona.getPaterno()+ " ";
-                    String materno = persona.getMaterno();
-
-                    dto.setNombre(nombre.concat(paterno).concat(materno));
-
-                    return dto;
-                    
-                })
-                .filter(dto -> dto.getFechaSolicitud().getMonthValue() == mesActual)
-                .toList();
-
-    }
-
-    @Transactional
-    public Cita updateCita(Long id, Cita citaActualizada) {
-        Optional<Cita> citaOptional = citaRepository.findById(id);
-        if (citaOptional.isPresent()) {
-            Cita citaExistente = citaOptional.get();
-            citaExistente.setRut(citaActualizada.getRut());
-            citaExistente.setAgenda(citaActualizada.getAgenda());
-            citaExistente.setFechaHora(citaActualizada.getFechaHora());
-            return citaRepository.save(citaExistente);
-        }
-        return null;
-    }
-
-    @Transactional
-    public boolean deleteCitaById(Long id) {
-        Optional<Cita> citaOptional = citaRepository.findById(id);
-        if (citaOptional.isPresent()) {
-            citaRepository.delete(citaOptional.get());
-            return true;
-        }
-        return false;
-    }
 }

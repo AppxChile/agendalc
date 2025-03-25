@@ -16,7 +16,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.agendalc.agendalc.dto.SolicitudCitaResponse;
 import com.agendalc.agendalc.dto.SolicitudResponse;
-import com.agendalc.agendalc.services.SolicitudCitaService;
+import com.agendalc.agendalc.services.interfaces.SolicitudCitaService;
 
 @RestController
 @RequestMapping("/api/agendalc/solicitud")
