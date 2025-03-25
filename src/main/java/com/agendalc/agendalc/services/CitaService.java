@@ -3,6 +3,7 @@ package com.agendalc.agendalc.services;
 import com.agendalc.agendalc.dto.CitaDto;
 import com.agendalc.agendalc.dto.CitaRequest;
 import com.agendalc.agendalc.dto.PersonaResponse;
+import com.agendalc.agendalc.dto.SolicitudCitaResponse;
 import com.agendalc.agendalc.entities.Agenda;
 import com.agendalc.agendalc.entities.BloqueHorario;
 import com.agendalc.agendalc.entities.Cita;
@@ -125,7 +126,7 @@ public class CitaService {
         return citaRepository.findById(id);
     }
 
-    public List<CitaDto> getCitaByRut(Integer rut) {
+    public List<SolicitudCitaResponse> getCitaByRut(Integer rut) {
 
         List<Cita> citas = citaRepository.findByRut(rut);
 
@@ -136,8 +137,31 @@ public class CitaService {
         int mesActual = LocalDate.now().getMonthValue();
 
         return citas.stream()
-                .map(CitaDto::new)
-                .filter(dto -> dto.getFechaHora().getMonthValue() == mesActual)
+                .map(cita ->{
+
+                    SolicitudCitaResponse dto = new SolicitudCitaResponse();
+
+                    dto.setRut(cita.getRut());
+                    dto.setFechaSolicitud(cita.getFechaHora().toLocalDate());
+                    dto.setFechaAgenda(cita.getAgenda().getFecha());
+                    dto.setIdBloque(cita.getBloqueHorario().getIdBloque());
+                    dto.setHoraInicioBloque(cita.getBloqueHorario().getHoraInicio());
+                    dto.setHoraFinBloque(cita.getBloqueHorario().getHoraFin());
+
+                    PersonaResponse persona = apiService.getPersonaInfo(cita.getRut());
+
+                    dto.setVrut(persona.getVrut());
+
+                    String nombre = persona.getNombres() + " ";
+                    String paterno = persona.getPaterno()+ " ";
+                    String materno = persona.getMaterno();
+
+                    dto.setNombre(nombre.concat(paterno).concat(materno));
+
+                    return dto;
+                    
+                })
+                .filter(dto -> dto.getFechaSolicitud().getMonthValue() == mesActual)
                 .toList();
 
     }

@@ -2,6 +2,7 @@ package com.agendalc.agendalc.controllers;
 
 import com.agendalc.agendalc.dto.CitaDto;
 import com.agendalc.agendalc.dto.CitaRequest;
+import com.agendalc.agendalc.dto.SolicitudCitaResponse;
 import com.agendalc.agendalc.entities.Cita;
 import com.agendalc.agendalc.services.CitaService;
 
@@ -83,7 +84,7 @@ public class CitaController {
     @PreAuthorize("hasRole('FUNC')")
     public ResponseEntity<Object> getCitabyRut(@PathVariable Integer rut) {
         try {
-            List<CitaDto> response = citaService.getCitaByRut(rut);
+            List<SolicitudCitaResponse> response = citaService.getCitaByRut(rut);
             return ResponseEntity.status(HttpStatus.OK).body(response);
         } catch (IllegalArgumentException e) {
             return ResponseEntity.status(HttpStatus.CONFLICT).body(e.getMessage());
