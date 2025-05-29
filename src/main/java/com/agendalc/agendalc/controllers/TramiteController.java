@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.agendalc.agendalc.dto.TramiteRequest;
 import com.agendalc.agendalc.entities.Tramite;
 import com.agendalc.agendalc.services.interfaces.TramiteService;
 
@@ -31,9 +32,9 @@ public class TramiteController {
 
     @PostMapping
     @PreAuthorize("hasRole('FUNC')")
-    public ResponseEntity<Object> createTramite(@RequestBody Tramite tramite) {
+    public ResponseEntity<Object> createTramite(@RequestBody TramiteRequest request) {
         try {
-            Tramite nuevoTramite = tramiteService.createTramite(tramite);
+            Tramite nuevoTramite = tramiteService.createTramite(request);
             return new ResponseEntity<>(nuevoTramite, HttpStatus.CREATED);
 
         } catch (Exception e) {

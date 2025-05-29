@@ -17,22 +17,18 @@ import com.agendalc.agendalc.dto.SolicitudCitaResponse;
 import com.agendalc.agendalc.entities.Agenda;
 import com.agendalc.agendalc.entities.BloqueHorario;
 import com.agendalc.agendalc.entities.Cita;
-import com.agendalc.agendalc.entities.SolicitudCita;
-import com.agendalc.agendalc.entities.SolicitudCita.EstadoSolicitud;
 import com.agendalc.agendalc.repositories.CitaRepository;
 import com.agendalc.agendalc.services.interfaces.AgendaService;
 import com.agendalc.agendalc.services.interfaces.ApiMailService;
 import com.agendalc.agendalc.services.interfaces.ApiPersonaService;
 import com.agendalc.agendalc.services.interfaces.BloqueHorarioService;
 import com.agendalc.agendalc.services.interfaces.CitaService;
-import com.agendalc.agendalc.services.interfaces.SolicitudCitaService;
 
 import jakarta.persistence.EntityNotFoundException;
 
 @Service
 public class CitaServiceImpl implements CitaService {
 
-    private final SolicitudCitaService solicitudCitaService;
 
     private final CitaRepository citaRepository;
 
@@ -47,13 +43,12 @@ public class CitaServiceImpl implements CitaService {
     public CitaServiceImpl(CitaRepository citaRepository, AgendaService agendaService,
             BloqueHorarioService bloqueHorarioService,
             ApiPersonaService apiPersonaService,
-            ApiMailService apiMailService, SolicitudCitaService solicitudCitaService) {
+            ApiMailService apiMailService ) {
         this.citaRepository = citaRepository;
         this.agendaService = agendaService;
         this.bloqueHorarioService = bloqueHorarioService;
         this.apiPersonaService = apiPersonaService;
         this.apiMailService = apiMailService;
-        this.solicitudCitaService = solicitudCitaService;
     }
 
     @Transactional
@@ -88,12 +83,7 @@ public class CitaServiceImpl implements CitaService {
         bloqueHorario.setCuposDisponibles(bloqueHorario.getCuposDisponibles() - 1);
         bloqueHorarioService.save(bloqueHorario);
 
-        SolicitudCita solicitud = new SolicitudCita();
-        solicitud.setCita(cita);
-        solicitud.setFechaSolicitud(LocalDate.now());
-        solicitud.setEstado(EstadoSolicitud.PENDIENTE);
-
-        solicitudCitaService.save(solicitud);
+       
 
         CitaDto citaDto = new CitaDto(cita);
 

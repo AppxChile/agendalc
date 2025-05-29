@@ -1,9 +1,11 @@
 package com.agendalc.agendalc.entities;
 
+import java.util.List;
 import java.util.Set;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -26,6 +28,29 @@ public class Tramite {
     @OneToMany(mappedBy = "tramite")
     @JsonIgnore
     private Set<Agenda> agendas;
+
+    @OneToMany(mappedBy = "tramite", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<DocumentosTramite> documentosRequeridos;
+
+    private boolean pideDocumentos;
+
+    private boolean requiereSolicitud;
+
+    public boolean isPideDocumentos() {
+        return pideDocumentos;
+    }
+
+    public void setPideDocumentos(boolean pideDocumentos) {
+        this.pideDocumentos = pideDocumentos;
+    }
+
+    public boolean isRequiereSolicitud() {
+        return requiereSolicitud;
+    }
+
+    public void setRequiereSolicitud(boolean requiereSolicitud) {
+        this.requiereSolicitud = requiereSolicitud;
+    }
 
     public Long getIdTramite() {
         return idTramite;
@@ -57,6 +82,14 @@ public class Tramite {
 
     public void setAgendas(Set<Agenda> agendas) {
         this.agendas = agendas;
+    }
+
+    public List<DocumentosTramite> getDocumentosRequeridos() {
+        return documentosRequeridos;
+    }
+
+    public void setDocumentosRequeridos(List<DocumentosTramite> documentosRequeridos) {
+        this.documentosRequeridos = documentosRequeridos;
     }
 
 }

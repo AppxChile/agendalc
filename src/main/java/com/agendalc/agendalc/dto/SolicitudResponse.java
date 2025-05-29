@@ -1,26 +1,22 @@
 package com.agendalc.agendalc.dto;
 
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-
 public class SolicitudResponse {
 
     private Long idSolicitud;
-    private String asignadoA;
-    private LocalDate fechaSolicitud;
+    private String nombreTramites;
+    private Long idTramite;
     private Integer rut;
-    private String vrut;
-    private String nonbre;
-    private LocalDate fechaFinalizacion;
-    private LocalDateTime fechaHoraCita;
-    private String estadoSolicitud;
 
-    public String getNonbre() {
-        return nonbre;
+    
+
+    public SolicitudResponse() {
     }
 
-    public void setNonbre(String nonbre) {
-        this.nonbre = nonbre;
+    public SolicitudResponse(Long idSolicitud, String nombreTramites, Long idTramite, Integer rut) {
+        this.idSolicitud = idSolicitud;
+        this.nombreTramites = nombreTramites;
+        this.idTramite = idTramite;
+        this.rut = rut;
     }
 
     public Long getIdSolicitud() {
@@ -31,20 +27,20 @@ public class SolicitudResponse {
         this.idSolicitud = idSolicitud;
     }
 
-    public String getAsignadoA() {
-        return asignadoA;
+    public String getNombreTramites() {
+        return nombreTramites;
     }
 
-    public void setAsignadoA(String asignadoA) {
-        this.asignadoA = asignadoA;
+    public void setNombreTramites(String nombreTramites) {
+        this.nombreTramites = nombreTramites;
     }
 
-    public LocalDate getFechaSolicitud() {
-        return fechaSolicitud;
+    public Long getIdTramite() {
+        return idTramite;
     }
 
-    public void setFechaSolicitud(LocalDate fechaSolicitud) {
-        this.fechaSolicitud = fechaSolicitud;
+    public void setIdTramite(Long idTramite) {
+        this.idTramite = idTramite;
     }
 
     public Integer getRut() {
@@ -53,38 +49,6 @@ public class SolicitudResponse {
 
     public void setRut(Integer rut) {
         this.rut = rut;
-    }
-
-    public LocalDateTime getFechaHoraCita() {
-        return fechaHoraCita;
-    }
-
-    public void setFechaHoraCita(LocalDateTime fechaHora) {
-        this.fechaHoraCita = fechaHora;
-    }
-
-    public String getEstadoSolicitud() {
-        return estadoSolicitud;
-    }
-
-    public void setEstadoSolicitud(String estadoSolicitud) {
-        this.estadoSolicitud = estadoSolicitud;
-    }
-
-    public String getVrut() {
-        return vrut;
-    }
-
-    public void setVrut(String vrut) {
-        this.vrut = vrut;
-    }
-
-    public LocalDate getFechaFinalizacion() {
-        return fechaFinalizacion;
-    }
-
-    public void setFechaFinalizacion(LocalDate fechaFinalizacion) {
-        this.fechaFinalizacion = fechaFinalizacion;
     }
 
 }

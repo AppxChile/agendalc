@@ -3,25 +3,24 @@ package com.agendalc.agendalc.services.interfaces;
 import java.util.List;
 
 import com.agendalc.agendalc.dto.SolicitudCitaResponse;
+import com.agendalc.agendalc.dto.SolicitudRequest;
 import com.agendalc.agendalc.dto.SolicitudResponse;
-import com.agendalc.agendalc.entities.SolicitudCita;
+import com.agendalc.agendalc.dto.SolicitudResponseList;
 
-public interface SolicitudCitaService {
+public interface SolicitudService {
 
-    List<SolicitudResponse> getSolicitudes();
+    List<SolicitudResponseList> getSolicitudes();
 
-    List<SolicitudResponse> getSolicitudesPendientes();
+    List<SolicitudResponseList> getSolicitudesPendientes();
 
     void assignSolicitud(Long idSolicitud, String loginUsuario);
 
     void finishSolicitudById(Long idSolicitud);
 
-    List<SolicitudResponse> getSolicitudesUnassigned();
 
-    List<SolicitudResponse> getSolicitudesAssignByUser(String username);
 
     List<SolicitudCitaResponse> getSolicituCitasByRut(Integer rut) ;
 
-    SolicitudCita save(SolicitudCita solicitudCita);
+    SolicitudResponse createTramite(SolicitudRequest request);
 
 }

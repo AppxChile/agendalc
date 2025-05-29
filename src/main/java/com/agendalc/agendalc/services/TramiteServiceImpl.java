@@ -5,6 +5,7 @@ import java.util.List;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.agendalc.agendalc.dto.TramiteRequest;
 import com.agendalc.agendalc.entities.Tramite;
 import com.agendalc.agendalc.repositories.TramiteRepository;
 import com.agendalc.agendalc.services.interfaces.TramiteService;
@@ -12,16 +13,17 @@ import com.agendalc.agendalc.services.interfaces.TramiteService;
 @Service
 public class TramiteServiceImpl implements TramiteService {
 
-     private final TramiteRepository tramiteRepository;
+    private final TramiteRepository tramiteRepository;
 
     public TramiteServiceImpl(TramiteRepository tramiteRepository) {
         this.tramiteRepository = tramiteRepository;
     }
 
-
     @Transactional
     @Override
-    public Tramite createTramite(Tramite tramite) {
+    public Tramite createTramite(TramiteRequest request) {
+
+        Tramite tramite = convertToEntity(request);
         return tramiteRepository.save(tramite);
     }
 
@@ -32,7 +34,7 @@ public class TramiteServiceImpl implements TramiteService {
 
     @Override
     public Tramite getTramiteById(Long id) {
-        return tramiteRepository.findById(id).orElseThrow(()-> new IllegalArgumentException("no existe el id"));
+        return tramiteRepository.findById(id).orElseThrow(() -> new IllegalArgumentException("no existe el id"));
     }
 
     @Transactional
@@ -52,6 +54,15 @@ public class TramiteServiceImpl implements TramiteService {
             return true;
         }
         return false;
+    }
+
+    private Tramite convertToEntity(TramiteRequest request) {
+        Tramite tramite = new Tramite();
+        tramite.setNombre(request.getNombre().toUpperCase());
+        tramite.setDescripcion(request.getDescripcion());
+        tramite.setPideDocumentos(request.isPideDocumentos());
+        tramite.setRequiereSolicitud(request.isRequiereSolicitud());
+        return tramite;
     }
 
 }

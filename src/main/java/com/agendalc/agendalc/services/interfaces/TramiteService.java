@@ -2,11 +2,12 @@ package com.agendalc.agendalc.services.interfaces;
 
 import java.util.List;
 
+import com.agendalc.agendalc.dto.TramiteRequest;
 import com.agendalc.agendalc.entities.Tramite;
 
 public interface TramiteService {
 
-    Tramite createTramite(Tramite tramite);
+    Tramite createTramite(TramiteRequest request);
 
     List<Tramite> getAllTramites();
 
