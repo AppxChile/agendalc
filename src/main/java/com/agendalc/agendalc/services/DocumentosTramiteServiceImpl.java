@@ -1,5 +1,7 @@
 package com.agendalc.agendalc.services;
 
+import org.springframework.stereotype.Service;
+
 import com.agendalc.agendalc.dto.DocumentosTramiteRequest;
 import com.agendalc.agendalc.dto.DocumentosTramiteResponse;
 import com.agendalc.agendalc.entities.DocumentosTramite;
@@ -8,6 +10,7 @@ import com.agendalc.agendalc.repositories.DocumentosTramiteRepository;
 import com.agendalc.agendalc.repositories.TramiteRepository;
 import com.agendalc.agendalc.services.interfaces.DocumentosTramiteService;
 
+@Service
 public class DocumentosTramiteServiceImpl implements DocumentosTramiteService {
 
     private final DocumentosTramiteRepository documentosTramiteRepository;
@@ -21,7 +24,7 @@ public class DocumentosTramiteServiceImpl implements DocumentosTramiteService {
     }
 
     @Override
-    public DocumentosTramiteResponse creaateDocumentosTramite(DocumentosTramiteRequest request) {
+    public DocumentosTramiteResponse createDocumentosTramite(DocumentosTramiteRequest request) {
 
         Tramite tramite = getTramiteById(request.getIdTramite());
 

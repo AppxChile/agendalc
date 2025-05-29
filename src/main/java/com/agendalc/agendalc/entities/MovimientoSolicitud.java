@@ -22,7 +22,7 @@ public class MovimientoSolicitud {
     @Column(nullable = false)
     private LocalDateTime fechaMovimiento;
 
-    @Column(nullable = false)
+    @Column(nullable = true)
     private String usuarioResponsable; // Quién realizó el movimiento
 
 

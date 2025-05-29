@@ -5,6 +5,6 @@ import com.agendalc.agendalc.dto.DocumentosTramiteResponse;
 
 public interface DocumentosTramiteService {
 
-DocumentosTramiteResponse creaateDocumentosTramite(DocumentosTramiteRequest request);
+DocumentosTramiteResponse createDocumentosTramite(DocumentosTramiteRequest request);
 
 }

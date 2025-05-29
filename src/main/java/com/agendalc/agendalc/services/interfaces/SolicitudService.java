@@ -21,6 +21,6 @@ public interface SolicitudService {
 
     List<SolicitudCitaResponse> getSolicituCitasByRut(Integer rut) ;
 
-    SolicitudResponse createTramite(SolicitudRequest request);
+    SolicitudResponse createSolicitud(SolicitudRequest request);
 
 }

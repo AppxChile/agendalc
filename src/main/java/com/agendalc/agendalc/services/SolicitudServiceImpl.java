@@ -10,6 +10,7 @@ import com.agendalc.agendalc.dto.SolicitudCitaResponse;
 import com.agendalc.agendalc.dto.SolicitudRequest;
 import com.agendalc.agendalc.dto.SolicitudResponse;
 import com.agendalc.agendalc.dto.SolicitudResponseList;
+import com.agendalc.agendalc.entities.MovimientoSolicitud;
 import com.agendalc.agendalc.entities.Solicitud;
 import com.agendalc.agendalc.entities.Tramite;
 import com.agendalc.agendalc.entities.Solicitud.EstadoSolicitud;
@@ -21,21 +22,21 @@ import com.agendalc.agendalc.services.interfaces.SolicitudService;
 @Service
 public class SolicitudServiceImpl implements SolicitudService {
 
-    private final SolicitudRepository solicitudCitaRepository;
+    private final SolicitudRepository solicitudRepository;
     private final ApiPersonaService apiPersonaService;
     private final TramiteRepository tramiteRepository;
 
     public SolicitudServiceImpl(SolicitudRepository solicitudCitaRepository,
             ApiPersonaService apiPersonaService,
             TramiteRepository tramiteRepository) {
-        this.solicitudCitaRepository = solicitudCitaRepository;
+        this.solicitudRepository = solicitudCitaRepository;
         this.apiPersonaService = apiPersonaService;
         this.tramiteRepository = tramiteRepository;
     }
 
     @Override
     public List<SolicitudResponseList> getSolicitudes() {
-        List<Solicitud> solicitudes = solicitudCitaRepository.findAll();
+        List<Solicitud> solicitudes = solicitudRepository.findAll();
 
         return solicitudes.stream()
                 .map(sol -> {
@@ -63,7 +64,7 @@ public class SolicitudServiceImpl implements SolicitudService {
 
     @Override
     public List<SolicitudResponseList> getSolicitudesPendientes() {
-        List<Solicitud> solicitudes = solicitudCitaRepository.findByEstado(Solicitud.EstadoSolicitud.PENDIENTE);
+        List<Solicitud> solicitudes = solicitudRepository.findByEstado(Solicitud.EstadoSolicitud.PENDIENTE);
 
         return solicitudes.stream()
                 .map(sol -> {
@@ -91,25 +92,25 @@ public class SolicitudServiceImpl implements SolicitudService {
     @Transactional
     @Override
     public void assignSolicitud(Long idSolicitud, String loginUsuario) {
-        Solicitud solicitud = solicitudCitaRepository.findById(idSolicitud)
+        Solicitud solicitud = solicitudRepository.findById(idSolicitud)
                 .orElseThrow(() -> new IllegalArgumentException("Solicitud no encontrada"));
 
-        solicitudCitaRepository.save(solicitud);
+        solicitudRepository.save(solicitud);
     }
 
     @Transactional
     @Override
     public void finishSolicitudById(Long idSolicitud) {
-        Solicitud solicitud = solicitudCitaRepository.findById(idSolicitud)
+        Solicitud solicitud = solicitudRepository.findById(idSolicitud)
                 .orElseThrow(() -> new IllegalArgumentException("Solicitud no encontrada"));
 
         solicitud.setEstado(EstadoSolicitud.FINALIZADA);
-        solicitudCitaRepository.save(solicitud);
+        solicitudRepository.save(solicitud);
     }
 
     @Override
     public List<SolicitudCitaResponse> getSolicituCitasByRut(Integer rut) {
-        List<Solicitud> citas = solicitudCitaRepository.findByRut(rut);
+        List<Solicitud> citas = solicitudRepository.findByRut(rut);
 
         return citas.stream().map(cita -> {
 
@@ -134,29 +135,34 @@ public class SolicitudServiceImpl implements SolicitudService {
     }
 
     @Override
-    public SolicitudResponse createTramite(SolicitudRequest request) {
-
+    @Transactional
+    public SolicitudResponse createSolicitud(SolicitudRequest request) { 
         Tramite tramite = getTramiteById(request.getIdTramite());
 
-        Solicitud solicitud = convertEntity(request);
+        Solicitud solicitud = new Solicitud();
+        solicitud.setRut(request.getRut());
+        solicitud.setTramite(tramite);
 
-        return new SolicitudResponse(solicitudCitaRepository.save(solicitud).getIdSolicitud(), tramite.getNombre(),
-                tramite.getIdTramite(), solicitudCitaRepository.save(solicitud).getRut());
+        MovimientoSolicitud primerMovimiento = new MovimientoSolicitud(
+                solicitud,
+                MovimientoSolicitud.TipoMovimiento.CREACION,
+                null,
+                null);
+        solicitud.addMovimiento(primerMovimiento); 
 
+        solicitud = solicitudRepository.save(solicitud);
+
+
+        return new SolicitudResponse(
+                solicitud.getIdSolicitud(),
+                tramite.getNombre(),
+                tramite.getIdTramite(),
+                solicitud.getRut());
     }
 
     private Tramite getTramiteById(Long idTramite) {
         return tramiteRepository.findById(idTramite)
-                .orElseThrow(() -> new IllegalArgumentException("Tramite no encontrado"));
+                .orElseThrow(() -> new IllegalArgumentException("Trámite no encontrado"));
     }
 
-    private Solicitud convertEntity(SolicitudRequest request) {
-        Solicitud solicitud = new Solicitud();
-
-        solicitud.setRut(request.getRut());
-        solicitud.setTramite(getTramiteById(request.getIdTramite()));
-
-        return solicitud;
-
-    }
 }

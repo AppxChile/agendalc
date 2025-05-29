@@ -51,7 +51,7 @@ public class SolicitudController {
     public ResponseEntity<Object> createSolicitud(@RequestBody SolicitudRequest request) {
 
         try {
-            SolicitudResponse response = solicitudService.createTramite(request);
+            SolicitudResponse response = solicitudService.createSolicitud(request);
             return ResponseEntity.ok(response);
 
         } catch (Exception e) {
