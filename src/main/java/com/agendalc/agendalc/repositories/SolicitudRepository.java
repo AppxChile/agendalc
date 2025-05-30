@@ -9,7 +9,5 @@ import java.util.List;
 public interface SolicitudRepository extends JpaRepository<Solicitud, Long> {
     List<Solicitud> findByEstado(Solicitud.EstadoSolicitud estado);
 
-
-
     List<Solicitud> findByRut(Integer rut);
 }

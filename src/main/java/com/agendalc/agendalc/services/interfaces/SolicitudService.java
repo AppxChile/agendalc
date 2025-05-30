@@ -1,5 +1,6 @@
 package com.agendalc.agendalc.services.interfaces;
 
+import java.io.IOException;
 import java.util.List;
 
 import com.agendalc.agendalc.dto.SolicitudCitaResponse;
@@ -21,6 +22,6 @@ public interface SolicitudService {
 
     List<SolicitudCitaResponse> getSolicituCitasByRut(Integer rut) ;
 
-    SolicitudResponse createSolicitud(SolicitudRequest request);
+    SolicitudResponse createSolicitud(SolicitudRequest request)  throws IOException;
 
 }

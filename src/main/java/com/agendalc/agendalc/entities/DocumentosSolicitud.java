@@ -1,5 +1,6 @@
 package com.agendalc.agendalc.entities;
 
+
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -19,10 +20,19 @@ public class DocumentosSolicitud {
     private Solicitud solicitud;
 
     @ManyToOne
-    @JoinColumn(name = "documento_id", nullable = false)    
+    @JoinColumn(name = "documento_id", nullable = false)
     private DocumentosTramite documentosTramite;
 
     private String rutaDocumento;
+
+    public DocumentosSolicitud() {
+    }
+
+    public DocumentosSolicitud(Solicitud solicitud, DocumentosTramite documentosTramite, String rutaDocumento) {
+        this.solicitud = solicitud;
+        this.documentosTramite = documentosTramite;
+        this.rutaDocumento = rutaDocumento;
+    }
 
     public Long getIdDocumentoSolicitud() {
         return idDocumentoSolicitud;
@@ -55,9 +65,5 @@ public class DocumentosSolicitud {
     public void setRutaDocumento(String rutaDocumento) {
         this.rutaDocumento = rutaDocumento;
     }
-
-    
-
-    
 
 }

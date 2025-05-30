@@ -131,4 +131,14 @@ public class Solicitud {
     public void setFechaSolicitud(LocalDate fechaSolicitud) {
         this.fechaSolicitud = fechaSolicitud;
     }
+
+    public List<DocumentosSolicitud> getDocumentosEntregados() {
+        return documentosEntregados;
+    }
+
+    public void setDocumentosEntregados(List<DocumentosSolicitud> documentosEntregados) {
+        this.documentosEntregados = documentosEntregados;
+    }
+
+    
 }
