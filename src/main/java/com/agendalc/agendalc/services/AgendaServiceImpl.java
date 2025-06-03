@@ -43,13 +43,10 @@ public class AgendaServiceImpl implements AgendaService {
             throw new IllegalArgumentException("La lista de bloques horarios está vacía o es nula");
         }
 
-        // Usamos stream() para procesar la lista de bloques y agregar los nuevos o
-        // existentes
         Set<BloqueHorario> nuevosBloques = bloquesHorarios.stream()
                 .map(this::getOrCreateBloque)
                 .collect(Collectors.toSet());
 
-        // Agregar los nuevos bloques a la agenda
         agenda.getBloquesHorarios().addAll(nuevosBloques);
 
         return agendaRepository.save(agenda);
@@ -102,14 +99,12 @@ public class AgendaServiceImpl implements AgendaService {
 
         BloqueHorario bloqueHorario = bloqueHorarioService.findById(idBloqueHorario);
 
-        // Eliminamos el bloque de la agenda usando removeIf (más eficiente)
         boolean removed = agenda.getBloquesHorarios().removeIf(bh -> bh.getIdBloque().equals(idBloqueHorario));
 
         if (!removed) {
             throw new IllegalArgumentException("El bloque horario no está asociado con esta agenda");
         }
 
-        // Si el bloque no tiene más referencias, lo eliminamos
         bloqueHorarioService.delete(bloqueHorario);
 
         return agendaRepository.save(agenda);

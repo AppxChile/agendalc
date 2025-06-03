@@ -29,7 +29,6 @@ import jakarta.persistence.EntityNotFoundException;
 @Service
 public class CitaServiceImpl implements CitaService {
 
-
     private final CitaRepository citaRepository;
 
     private final AgendaService agendaService;
@@ -43,7 +42,7 @@ public class CitaServiceImpl implements CitaService {
     public CitaServiceImpl(CitaRepository citaRepository, AgendaService agendaService,
             BloqueHorarioService bloqueHorarioService,
             ApiPersonaService apiPersonaService,
-            ApiMailService apiMailService ) {
+            ApiMailService apiMailService) {
         this.citaRepository = citaRepository;
         this.agendaService = agendaService;
         this.bloqueHorarioService = bloqueHorarioService;
@@ -82,8 +81,6 @@ public class CitaServiceImpl implements CitaService {
 
         bloqueHorario.setCuposDisponibles(bloqueHorario.getCuposDisponibles() - 1);
         bloqueHorarioService.save(bloqueHorario);
-
-       
 
         CitaDto citaDto = new CitaDto(cita);
 

@@ -1,6 +1,5 @@
 package com.agendalc.agendalc.entities;
 
-
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
 
@@ -25,7 +24,6 @@ public class MovimientoSolicitud {
     @Column(nullable = true)
     private String usuarioResponsable; // Quién realizó el movimiento
 
-
     @Column(nullable = true)
     private String asignadoA; // Si el movimiento es una asignación/derivación
 
@@ -46,15 +44,16 @@ public class MovimientoSolicitud {
     }
 
     // Constructor
-    public MovimientoSolicitud() {}
+    public MovimientoSolicitud() {
+    }
 
-    public MovimientoSolicitud(Solicitud solicitudCita, TipoMovimiento tipo, String usuarioResponsable,  String asignadoA) {
+    public MovimientoSolicitud(Solicitud solicitudCita, TipoMovimiento tipo, String usuarioResponsable,
+            String asignadoA) {
         this.solicitud = solicitudCita;
         this.tipo = tipo;
         this.usuarioResponsable = usuarioResponsable;
         this.asignadoA = asignadoA;
     }
-
 
     // Getters y Setters
     public Long getIdMovimiento() {
@@ -97,13 +96,15 @@ public class MovimientoSolicitud {
         this.usuarioResponsable = usuarioResponsable;
     }
 
-
-
     public String getAsignadoA() {
         return asignadoA;
     }
 
     public void setAsignadoA(String asignadoA) {
         this.asignadoA = asignadoA;
+    }
+
+    public String nombreTipo() {
+        return tipo.name();
     }
 }

@@ -6,22 +6,16 @@ public class SolicitudRequest {
 
     private Long idTramite;
     private Integer rut;
-    private List<DocumentosSubidosRequest> documentos; 
-
-    
+    private List<DocumentosSubidosRequest> documentos;
 
     public SolicitudRequest() {
     }
-
-    
 
     public SolicitudRequest(Long idTramite, Integer rut, List<DocumentosSubidosRequest> documentos) {
         this.idTramite = idTramite;
         this.rut = rut;
         this.documentos = documentos;
     }
-
-
 
     // Getters y Setters
     public Long getIdTramite() {
@@ -39,8 +33,6 @@ public class SolicitudRequest {
     public void setRut(Integer rut) {
         this.rut = rut;
     }
-
-
 
     public List<DocumentosSubidosRequest> getDocumentos() {
         return documentos;

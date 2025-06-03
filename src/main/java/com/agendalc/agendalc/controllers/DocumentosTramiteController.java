@@ -33,5 +33,4 @@ public class DocumentosTramiteController {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
         }
     }
-
 }

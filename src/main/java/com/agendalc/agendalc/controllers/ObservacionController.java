@@ -6,6 +6,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.agendalc.agendalc.dto.ObservacionRequest;
@@ -27,6 +28,18 @@ public class ObservacionController {
         try {
             observacionSolicitudService.createObservacion(request);
             return new ResponseEntity<>(HttpStatus.CREATED);
+
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+        }
+    }
+
+    @PostMapping("/check")
+    @PreAuthorize("hasRole('FUNC')")
+    public ResponseEntity<Object> checkObservacion(@RequestParam Long idObservacion) {
+        try {
+            observacionSolicitudService.changeCkeckObservacion(idObservacion);
+            return new ResponseEntity<>(HttpStatus.OK);
 
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());

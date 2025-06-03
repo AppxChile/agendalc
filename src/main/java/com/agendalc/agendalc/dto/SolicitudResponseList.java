@@ -1,19 +1,19 @@
 package com.agendalc.agendalc.dto;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
+import java.util.Set;
 
 public class SolicitudResponseList {
 
     private Long idSolicitud;
-    private String asignadoA;
     private LocalDate fechaSolicitud;
     private Integer rut;
     private String vrut;
     private String nonbre;
     private LocalDate fechaFinalizacion;
-    private LocalDateTime fechaHoraCita;
     private String estadoSolicitud;
+    private Set<MovimientosDto> movimientos;
+    private Set<ObservacionesDto> observaciones;
 
     public String getNonbre() {
         return nonbre;
@@ -31,14 +31,6 @@ public class SolicitudResponseList {
         this.idSolicitud = idSolicitud;
     }
 
-    public String getAsignadoA() {
-        return asignadoA;
-    }
-
-    public void setAsignadoA(String asignadoA) {
-        this.asignadoA = asignadoA;
-    }
-
     public LocalDate getFechaSolicitud() {
         return fechaSolicitud;
     }
@@ -53,14 +45,6 @@ public class SolicitudResponseList {
 
     public void setRut(Integer rut) {
         this.rut = rut;
-    }
-
-    public LocalDateTime getFechaHoraCita() {
-        return fechaHoraCita;
-    }
-
-    public void setFechaHoraCita(LocalDateTime fechaHora) {
-        this.fechaHoraCita = fechaHora;
     }
 
     public String getEstadoSolicitud() {
@@ -85,6 +69,22 @@ public class SolicitudResponseList {
 
     public void setFechaFinalizacion(LocalDate fechaFinalizacion) {
         this.fechaFinalizacion = fechaFinalizacion;
+    }
+
+    public Set<MovimientosDto> getMovimientos() {
+        return movimientos;
+    }
+
+    public void setMovimientos(Set<MovimientosDto> movimientos) {
+        this.movimientos = movimientos;
+    }
+
+    public Set<ObservacionesDto> getObservaciones() {
+        return observaciones;
+    }
+
+    public void setObservaciones(Set<ObservacionesDto> observaciones) {
+        this.observaciones = observaciones;
     }
 
 }

@@ -67,7 +67,7 @@ public class BloqueHorarioServiceImpl implements BloqueHorarioService {
 
     @Override
     public void delete(BloqueHorario bloqueHorario) {
-       bloqueHorarioRepository.delete(bloqueHorario);
+        bloqueHorarioRepository.delete(bloqueHorario);
     }
 
     @Override
@@ -80,6 +80,5 @@ public class BloqueHorarioServiceImpl implements BloqueHorarioService {
     public <S extends BloqueHorario> List<S> saveAll(Iterable<S> entities) {
         return bloqueHorarioRepository.saveAll(entities);
     }
-
 
 }

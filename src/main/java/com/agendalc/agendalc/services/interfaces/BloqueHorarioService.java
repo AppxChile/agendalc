@@ -27,6 +27,4 @@ public interface BloqueHorarioService {
 
     <S extends BloqueHorario> List<S> saveAll(Iterable<S> entities);
 
-    
- 
 }

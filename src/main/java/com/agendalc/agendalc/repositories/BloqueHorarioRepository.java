@@ -6,8 +6,6 @@ import org.springframework.stereotype.Repository;
 import com.agendalc.agendalc.entities.BloqueHorario;
 
 @Repository
-public interface BloqueHorarioRepository extends JpaRepository<BloqueHorario,Long> {
-
-    
+public interface BloqueHorarioRepository extends JpaRepository<BloqueHorario, Long> {
 
 }

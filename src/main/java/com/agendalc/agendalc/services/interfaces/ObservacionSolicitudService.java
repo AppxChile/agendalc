@@ -6,4 +6,6 @@ public interface ObservacionSolicitudService {
 
     void createObservacion(ObservacionRequest request);
 
+    void changeCkeckObservacion(Long idObservacion);
+
 }

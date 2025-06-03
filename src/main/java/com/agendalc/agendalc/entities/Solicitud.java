@@ -49,14 +49,17 @@ public class Solicitud {
     @OneToMany(mappedBy = "solicitud", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<DocumentosSolicitud> documentosEntregados;
 
+    private String asignadoA;
+
     public enum EstadoSolicitud {
-        PENDIENTE, // Recién creada, esperando revisión
-        ASIGNADA, // Asignada a un funcionario para su gestión
-        EN_PROCESO, // En proceso de revisión o gestión (opcional)
-        APROBADA, // Aprobada, el usuario ya puede agendar una cita real
-        RECHAZADA, // Rechazada (ej. por falta de requisitos)
-        DERIVADA, // Derivada a otro funcionario/departamento
-        FINALIZADA // Solicitud procesada y cerrada (independientemente de si agendó o no)
+        PENDIENTE,
+        ASIGNADA,
+        EN_PROCESO,
+        APROBADA,
+        RECHAZADA,
+        DERIVADA,
+        FINALIZADA,
+        OBSERVADA
     }
 
     @PrePersist
@@ -140,5 +143,12 @@ public class Solicitud {
         this.documentosEntregados = documentosEntregados;
     }
 
-    
+    public String getAsignadoA() {
+        return asignadoA;
+    }
+
+    public void setAsignadoA(String asignadoA) {
+        this.asignadoA = asignadoA;
+    }
+
 }

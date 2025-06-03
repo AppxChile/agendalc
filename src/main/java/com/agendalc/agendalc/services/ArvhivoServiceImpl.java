@@ -38,15 +38,12 @@ public class ArvhivoServiceImpl implements ArchivoService {
 
         Files.copy(file.getInputStream(), filePath, StandardCopyOption.REPLACE_EXISTING);
 
-        
-        return uniqueFileName; 
+        return uniqueFileName;
     }
 
     @Override
     public Path getRutaCompletaArchivo(String nombreGuardado) throws IOException {
         return Paths.get(uploadDir).toAbsolutePath().normalize().resolve(nombreGuardado);
     }
-
-    
 
 }

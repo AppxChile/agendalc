@@ -1,6 +1,5 @@
 package com.agendalc.agendalc.config;
 
-
 import org.springframework.stereotype.Component;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
@@ -17,9 +16,5 @@ public class AppProperties {
     public void setUploadDir(String uploadDir) {
         this.uploadDir = uploadDir;
     }
-
-    
-
-    
 
 }

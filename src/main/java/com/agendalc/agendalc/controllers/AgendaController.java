@@ -27,15 +27,14 @@ public class AgendaController {
     @PostMapping
     @PreAuthorize("hasRole('USER')")
     public ResponseEntity<Object> createAgenda(@RequestBody AgendaRequest request) {
-       try {
-        Agenda nuevaAgenda = agendaService.createAgenda(request);
-        return new ResponseEntity<>(nuevaAgenda, HttpStatus.CREATED);
-        
-       } catch (Exception e) {
-       return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
-       }
+        try {
+            Agenda nuevaAgenda = agendaService.createAgenda(request);
+            return new ResponseEntity<>(nuevaAgenda, HttpStatus.CREATED);
 
-        
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+        }
+
     }
 
     @GetMapping
@@ -45,11 +44,11 @@ public class AgendaController {
         try {
             List<Agenda> agendas = agendaService.getAllAgendas();
             return new ResponseEntity<>(agendas, HttpStatus.OK);
-            
+
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
         }
-       
+
     }
 
     @GetMapping("/{id}")
@@ -59,11 +58,11 @@ public class AgendaController {
         try {
             Agenda agenda = agendaService.findById(id);
             return ResponseEntity.ok(agenda);
-            
+
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
         }
-       
+
     }
 
     @PutMapping("/{id}")

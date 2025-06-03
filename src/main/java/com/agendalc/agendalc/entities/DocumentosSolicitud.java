@@ -1,6 +1,5 @@
 package com.agendalc.agendalc.entities;
 
-
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -24,6 +23,8 @@ public class DocumentosSolicitud {
     private DocumentosTramite documentosTramite;
 
     private String rutaDocumento;
+
+    private boolean aprobado;
 
     public DocumentosSolicitud() {
     }
@@ -64,6 +65,14 @@ public class DocumentosSolicitud {
 
     public void setRutaDocumento(String rutaDocumento) {
         this.rutaDocumento = rutaDocumento;
+    }
+
+    public boolean isAprobado() {
+        return aprobado;
+    }
+
+    public void setAprobado(boolean aprobado) {
+        this.aprobado = aprobado;
     }
 
 }

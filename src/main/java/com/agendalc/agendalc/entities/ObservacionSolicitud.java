@@ -1,6 +1,5 @@
 package com.agendalc.agendalc.entities;
 
-
 import jakarta.persistence.*;
 
 import java.time.LocalDate;
@@ -17,25 +16,24 @@ public class ObservacionSolicitud {
     private Solicitud solicitud;
 
     @Column(nullable = false, columnDefinition = "TEXT")
-    private String glosa; // El contenido de la observación
+    private String glosa;
 
     @Column(nullable = false)
     private LocalDate fechaObservacion;
 
     @Column(nullable = false)
-    private String usuarioResponsable; // Quién realizó la observación
+    private String usuarioResponsable;
+
+    private boolean revisada;
 
     @PrePersist
     protected void onCreate() {
         this.fechaObservacion = LocalDate.now();
+        this.revisada = false;
     }
 
-    // Constructor
-    public ObservacionSolicitud() {}
-
-    
-
- 
+    public ObservacionSolicitud() {
+    }
 
     public ObservacionSolicitud(Solicitud solicitud, String glosa, String usuarioResponsable) {
         this.solicitud = solicitud;
@@ -43,7 +41,6 @@ public class ObservacionSolicitud {
         this.usuarioResponsable = usuarioResponsable;
     }
 
-    // Getters y Setters
     public Long getIdObservacion() {
         return idObservacion;
     }
@@ -82,5 +79,13 @@ public class ObservacionSolicitud {
 
     public void setUsuarioResponsable(String usuarioResponsable) {
         this.usuarioResponsable = usuarioResponsable;
+    }
+
+    public boolean isRevisada() {
+        return revisada;
+    }
+
+    public void setRevisada(boolean revisada) {
+        this.revisada = revisada;
     }
 }

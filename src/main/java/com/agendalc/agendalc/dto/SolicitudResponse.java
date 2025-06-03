@@ -7,8 +7,6 @@ public class SolicitudResponse {
     private Long idTramite;
     private Integer rut;
 
-    
-
     public SolicitudResponse() {
     }
 

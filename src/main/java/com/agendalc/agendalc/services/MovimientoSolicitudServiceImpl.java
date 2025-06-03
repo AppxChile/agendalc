@@ -47,17 +47,17 @@ public class MovimientoSolicitudServiceImpl implements MovimientoSolicitudServic
     }
 
     private TipoMovimiento getTipoMovimiento(Integer tipoMovimiento) {
-    return switch (tipoMovimiento) {
-        case 0 -> TipoMovimiento.CREACION;
-        case 1 -> TipoMovimiento.ASIGNACION;
-        case 2 -> TipoMovimiento.DERIVACION;
-        case 3 -> TipoMovimiento.APROBACION;
-        case 4 -> TipoMovimiento.RECHAZO;
-        case 5 -> TipoMovimiento.OBSERVACION_AGREGADA;
-        case 6 -> TipoMovimiento.FINALIZACION;
-        default -> throw new IllegalArgumentException("Tipo de movimiento no válido");
-    };
-}
+        return switch (tipoMovimiento) {
+            case 0 -> TipoMovimiento.CREACION;
+            case 1 -> TipoMovimiento.ASIGNACION;
+            case 2 -> TipoMovimiento.DERIVACION;
+            case 3 -> TipoMovimiento.APROBACION;
+            case 4 -> TipoMovimiento.RECHAZO;
+            case 5 -> TipoMovimiento.OBSERVACION_AGREGADA;
+            case 6 -> TipoMovimiento.FINALIZACION;
+            default -> throw new IllegalArgumentException("Tipo de movimiento no válido");
+        };
+    }
 
     private MovimientoSolicitud convertEntity(Solicitud solicitud, TipoMovimiento tipo, String responsable,
             String asignadoA) {

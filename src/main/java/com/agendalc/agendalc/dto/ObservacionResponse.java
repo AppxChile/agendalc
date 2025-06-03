@@ -6,9 +6,6 @@ public class ObservacionResponse {
     private Long idSolicitud;
     private String glosa;
 
-
-    
-
     public ObservacionResponse(Long idObservacion, Long idSolicitud, String glosa) {
         this.idObservacion = idObservacion;
         this.idSolicitud = idSolicitud;

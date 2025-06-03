@@ -6,6 +6,6 @@ import org.springframework.stereotype.Repository;
 import com.agendalc.agendalc.entities.Agenda;
 
 @Repository
-public interface AgendaRepository extends  JpaRepository<Agenda,Long> {
+public interface AgendaRepository extends JpaRepository<Agenda, Long> {
 
 }

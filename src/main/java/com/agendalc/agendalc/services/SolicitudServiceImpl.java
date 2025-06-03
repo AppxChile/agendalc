@@ -4,14 +4,17 @@ import java.io.IOException;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.agendalc.agendalc.dto.DocumentosSubidosRequest;
+import com.agendalc.agendalc.dto.MovimientoSolicitudRequest;
+import com.agendalc.agendalc.dto.MovimientosDto;
+import com.agendalc.agendalc.dto.ObservacionesDto;
 import com.agendalc.agendalc.dto.PersonaResponse;
-import com.agendalc.agendalc.dto.SolicitudCitaResponse;
 import com.agendalc.agendalc.dto.SolicitudRequest;
 import com.agendalc.agendalc.dto.SolicitudResponse;
 import com.agendalc.agendalc.dto.SolicitudResponseList;
@@ -27,6 +30,7 @@ import com.agendalc.agendalc.repositories.SolicitudRepository;
 import com.agendalc.agendalc.repositories.TramiteRepository;
 import com.agendalc.agendalc.services.interfaces.ApiPersonaService;
 import com.agendalc.agendalc.services.interfaces.ArchivoService;
+import com.agendalc.agendalc.services.interfaces.MovimientoSolicitudService;
 import com.agendalc.agendalc.services.interfaces.SolicitudService;
 
 import jakarta.persistence.EntityNotFoundException;
@@ -39,115 +43,77 @@ public class SolicitudServiceImpl implements SolicitudService {
     private final TramiteRepository tramiteRepository;
     private final ArchivoService archivoService;
     private final DocumentosTramiteRepository documentosTramiteRepository;
+    private final MovimientoSolicitudService movimientoSolicitudService;
 
     public SolicitudServiceImpl(SolicitudRepository solicitudCitaRepository, ArchivoService archivoService,
             ApiPersonaService apiPersonaService,
-            TramiteRepository tramiteRepository, DocumentosTramiteRepository documentosTramiteRepository) {
+            TramiteRepository tramiteRepository, DocumentosTramiteRepository documentosTramiteRepository,
+            MovimientoSolicitudService movimientoSolicitudService) {
         this.solicitudRepository = solicitudCitaRepository;
         this.apiPersonaService = apiPersonaService;
         this.tramiteRepository = tramiteRepository;
         this.archivoService = archivoService;
         this.documentosTramiteRepository = documentosTramiteRepository;
+        this.movimientoSolicitudService = movimientoSolicitudService;
     }
 
     @Override
-    public List<SolicitudResponseList> getSolicitudes() {
-        List<Solicitud> solicitudes = solicitudRepository.findAll();
+    public List<SolicitudResponseList> getSolicitudes(int year) {
+        List<Solicitud> solicitudes = solicitudRepository
+                .findByFechaSolicitudYearWithMovimientosOrdered(year);
 
-        return solicitudes.stream()
-                .map(sol -> {
+        return mapToSolicitudResponseList(solicitudes).stream()
+                .filter(sol -> sol.getEstadoSolicitud().equals(EstadoSolicitud.PENDIENTE.toString()))
+                .toList();
 
-                    SolicitudResponseList response = new SolicitudResponseList();
-
-                    PersonaResponse personaResponse = apiPersonaService.getPersonaInfo(sol.getRut());
-
-                    String nombre = personaResponse.getNombres() + " ";
-                    String paterno = personaResponse.getPaterno() + " ";
-                    String materno = personaResponse.getMaterno();
-
-                    response.setNonbre(nombre.concat(paterno).concat(materno));
-                    response.setVrut(personaResponse.getVrut());
-
-                    response.setIdSolicitud(sol.getIdSolicitud());
-                    response.setFechaSolicitud(sol.getFechaSolicitud());
-                    response.setRut(sol.getRut());
-                    response.setEstadoSolicitud(sol.getEstado().name());
-
-                    return response;
-                }).toList();
-
-    }
-
-    @Override
-    public List<SolicitudResponseList> getSolicitudesPendientes() {
-        List<Solicitud> solicitudes = solicitudRepository.findByEstado(Solicitud.EstadoSolicitud.PENDIENTE);
-
-        return solicitudes.stream()
-                .map(sol -> {
-
-                    SolicitudResponseList response = new SolicitudResponseList();
-
-                    PersonaResponse personaResponse = apiPersonaService.getPersonaInfo(sol.getRut());
-
-                    String nombre = personaResponse.getNombres() + " ";
-                    String paterno = personaResponse.getPaterno() + " ";
-                    String materno = personaResponse.getMaterno();
-
-                    response.setNonbre(nombre.concat(paterno).concat(materno));
-                    response.setVrut(personaResponse.getVrut());
-
-                    response.setIdSolicitud(sol.getIdSolicitud());
-                    response.setFechaSolicitud(sol.getFechaSolicitud());
-                    response.setRut(sol.getRut());
-                    response.setEstadoSolicitud(sol.getEstado().name());
-
-                    return response;
-                }).toList();
     }
 
     @Transactional
     @Override
-    public void assignSolicitud(Long idSolicitud, String loginUsuario) {
-        Solicitud solicitud = solicitudRepository.findById(idSolicitud)
-                .orElseThrow(() -> new IllegalArgumentException("Solicitud no encontrada"));
+    public void assignOrDerivateSolicitud(Long idSolicitud, String loginUsuario, String asignadoA, int tipo) {
+        Solicitud solicitud = getSolicitudById(idSolicitud);
+
+        solicitud.setEstado(EstadoSolicitud.ASIGNADA);
+        solicitud.setAsignadoA(asignadoA);
+
+        MovimientoSolicitudRequest movimiento = mapMovimientoSolicitudRequest(idSolicitud, tipo, loginUsuario,
+                asignadoA);
+
+        movimientoSolicitudService.createMovimientoSolicitud(movimiento);
 
         solicitudRepository.save(solicitud);
     }
 
+    private MovimientoSolicitudRequest mapMovimientoSolicitudRequest(Long idSolicitud, Integer tipMovimiento,
+            String usuario, String asignadoA) {
+        MovimientoSolicitudRequest movimiento = new MovimientoSolicitudRequest();
+        movimiento.setIdSolicitud(idSolicitud);
+        movimiento.setTipoMovimiento(tipMovimiento);
+        movimiento.setLoginUsuario(usuario);
+        movimiento.setAsignadoA(asignadoA);
+
+        return movimiento;
+    }
+
     @Transactional
     @Override
-    public void finishSolicitudById(Long idSolicitud) {
-        Solicitud solicitud = solicitudRepository.findById(idSolicitud)
-                .orElseThrow(() -> new IllegalArgumentException("Solicitud no encontrada"));
+    public void finishSolicitudById(Long idSolicitud, String loginUsuario) {
+        Solicitud solicitud = getSolicitudById(idSolicitud);
+
+        MovimientoSolicitudRequest movimiento = mapMovimientoSolicitudRequest(idSolicitud, 6, loginUsuario,
+                null);
+
+        movimientoSolicitudService.createMovimientoSolicitud(movimiento);
 
         solicitud.setEstado(EstadoSolicitud.FINALIZADA);
         solicitudRepository.save(solicitud);
     }
 
     @Override
-    public List<SolicitudCitaResponse> getSolicituCitasByRut(Integer rut) {
-        List<Solicitud> citas = solicitudRepository.findByRut(rut);
+    public List<SolicitudResponseList> getSolicitudesByRut(Integer rut) {
+        List<Solicitud> solicitudes = solicitudRepository.findByRut(rut);
 
-        return citas.stream().map(cita -> {
-
-            SolicitudCitaResponse response = new SolicitudCitaResponse();
-
-            PersonaResponse personaResponse = apiPersonaService.getPersonaInfo(cita.getRut());
-
-            String nombre = personaResponse.getNombres() + " ";
-            String paterno = personaResponse.getPaterno() + " ";
-            String materno = personaResponse.getMaterno();
-
-            response.setEstado(cita.getEstado().name());
-            response.setFechaSolicitud(cita.getFechaSolicitud());
-            response.setRut(cita.getRut());
-
-            response.setNombre(nombre.concat(paterno).concat(materno));
-            response.setVrut(personaResponse.getVrut());
-
-            return response;
-
-        }).toList();
+        return mapToSolicitudResponseList(solicitudes);
     }
 
     @Override
@@ -212,6 +178,64 @@ public class SolicitudServiceImpl implements SolicitudService {
                 null,
                 null);
 
+    }
+
+    @Override
+    public List<SolicitudResponseList> getSolicitudesByRutFunc(Integer rut) {
+        List<Solicitud> solicitudes = solicitudRepository.findByAsignadoA(rut.toString());
+
+        return mapToSolicitudResponseList(solicitudes);
+
+    }
+
+    private List<SolicitudResponseList> mapToSolicitudResponseList(List<Solicitud> solicitudes) {
+        return solicitudes.stream()
+                .map(sol -> {
+
+                    SolicitudResponseList response = new SolicitudResponseList();
+
+                    PersonaResponse personaResponse = apiPersonaService.getPersonaInfo(sol.getRut());
+
+                    response.setNonbre(personaResponse.getNombreCompleto());
+                    response.setVrut(personaResponse.getVrut());
+
+                    response.setIdSolicitud(sol.getIdSolicitud());
+                    response.setFechaSolicitud(sol.getFechaSolicitud());
+                    response.setRut(sol.getRut());
+                    response.setEstadoSolicitud(sol.getEstado().name());
+
+                    if (sol.getMovimientos() != null && !sol.getMovimientos().isEmpty()) {
+                        response.setMovimientos(sol.getMovimientos().stream()
+                                .map(mov -> {
+                                    MovimientosDto movDto = new MovimientosDto();
+                                    movDto.setIdMovimiento(mov.getIdMovimiento());
+                                    movDto.setTipoMovimiento(mov.getTipo().name());
+                                    movDto.setUsuarioResponsable(mov.getUsuarioResponsable());
+                                    movDto.setFechaMovimiento(mov.getFechaMovimiento().toString());
+                                    return movDto;
+                                })
+                                .collect(Collectors.toSet()));
+                    }
+
+                    if (sol.getObservaciones() != null && !sol.getObservaciones().isEmpty()) {
+                        response.setObservaciones(sol.getObservaciones().stream().map(obs -> {
+                            ObservacionesDto obsDto = new ObservacionesDto();
+                            obsDto.setIdObservacion(obs.getIdObservacion());
+                            obsDto.setGlosa(obs.getGlosa());
+                            obsDto.setFechaObservacion(obs.getFechaObservacion().toString());
+                            obsDto.setUsuarioResponsable(obs.getUsuarioResponsable());
+                            obsDto.setRevisada(obs.isRevisada());
+                            return obsDto;
+                        }).collect(Collectors.toSet()));
+                    }
+
+                    return response;
+                }).toList();
+    }
+
+    private Solicitud getSolicitudById(Long idSolicitud) {
+        return solicitudRepository.findById(idSolicitud)
+                .orElseThrow(() -> new EntityNotFoundException("Solicitud no encontrada con ID: " + idSolicitud));
     }
 
 }

@@ -7,6 +7,8 @@ import com.agendalc.agendalc.dto.ObservacionRequest;
 import com.agendalc.agendalc.entities.MovimientoSolicitud;
 import com.agendalc.agendalc.entities.ObservacionSolicitud;
 import com.agendalc.agendalc.entities.Solicitud;
+import com.agendalc.agendalc.entities.Solicitud.EstadoSolicitud;
+import com.agendalc.agendalc.repositories.ObservacionSolicitudRepository;
 import com.agendalc.agendalc.repositories.SolicitudRepository;
 import com.agendalc.agendalc.services.interfaces.ObservacionSolicitudService;
 
@@ -15,8 +17,12 @@ public class ObservacionServiceImpl implements ObservacionSolicitudService {
 
     private final SolicitudRepository solicitudRepository;
 
-    public ObservacionServiceImpl(SolicitudRepository solicitudRepository) {
+    private final ObservacionSolicitudRepository observacionSolicitudRepository;
+
+    public ObservacionServiceImpl(SolicitudRepository solicitudRepository,
+            ObservacionSolicitudRepository observacionSolicitudRepository) {
         this.solicitudRepository = solicitudRepository;
+        this.observacionSolicitudRepository = observacionSolicitudRepository;
     }
 
     @Override
@@ -28,10 +34,11 @@ public class ObservacionServiceImpl implements ObservacionSolicitudService {
                 request.getLoginUsuario());
 
         MovimientoSolicitud movimiento = new MovimientoSolicitud(solicitud,
-                MovimientoSolicitud.TipoMovimiento.OBSERVACION_AGREGADA, request.getLoginUsuario(), null);
+                MovimientoSolicitud.TipoMovimiento.OBSERVACION_AGREGADA, request.getLoginUsuario(), request.getLoginUsuario());
 
         solicitud.addObservacion(observacion);
         solicitud.addMovimiento(movimiento);
+        changeStateSolicitud(solicitud);
 
         solicitudRepository.save(solicitud);
 
@@ -40,6 +47,25 @@ public class ObservacionServiceImpl implements ObservacionSolicitudService {
     private Solicitud getSolicitud(Long idSolicitud) {
         return solicitudRepository.findById(idSolicitud)
                 .orElseThrow(() -> new IllegalArgumentException("Solicitud no encontrada"));
+    }
+
+    private Solicitud changeStateSolicitud(Solicitud solicitud) {
+        solicitud.setEstado(EstadoSolicitud.OBSERVADA);
+        return solicitud;
+    }
+
+    @Override
+    public void changeCkeckObservacion(Long idObservacion) {
+        ObservacionSolicitud observacion = getObservacion(idObservacion);
+
+        observacion.setRevisada(true);
+
+        observacionSolicitudRepository.save(observacion);
+    }
+
+    private ObservacionSolicitud getObservacion(Long idObservacion) {
+        return observacionSolicitudRepository.findById(idObservacion)
+                .orElseThrow(() -> new IllegalArgumentException("Observacion no encontrada"));
     }
 
 }

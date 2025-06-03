@@ -6,6 +6,6 @@ import org.springframework.stereotype.Repository;
 import com.agendalc.agendalc.entities.Tramite;
 
 @Repository
-public interface TramiteRepository extends JpaRepository<Tramite,Long> {
+public interface TramiteRepository extends JpaRepository<Tramite, Long> {
 
 }
