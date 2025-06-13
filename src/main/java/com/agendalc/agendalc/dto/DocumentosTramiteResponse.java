@@ -5,6 +5,11 @@ public class DocumentosTramiteResponse {
     private Long id;
     private String nombre;
 
+    
+
+    public DocumentosTramiteResponse() {
+    }
+
     public DocumentosTramiteResponse(Long id, String nombre) {
         this.id = id;
         this.nombre = nombre;

@@ -78,4 +78,12 @@ public class Agenda {
     public void setCitas(Set<Cita> citas) {
         this.citas = citas;
     }
+
+    public Long getIdTramite() {
+        return (tramite != null) ? tramite.getIdTramite() : null;
+    }
+
+    public String getNombreTramite() {
+        return (tramite != null) ? tramite.getNombre() : null;
+    }
 }

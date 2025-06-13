@@ -59,7 +59,8 @@ public class Solicitud {
         RECHAZADA,
         DERIVADA,
         FINALIZADA,
-        OBSERVADA
+        OBSERVADA,
+        RESPONDIDA
     }
 
     @PrePersist
@@ -149,6 +150,20 @@ public class Solicitud {
 
     public void setAsignadoA(String asignadoA) {
         this.asignadoA = asignadoA;
+    }
+
+    public Long getIdTramite() {
+        if (this.tramite != null) {
+            return this.tramite.getIdTramite();
+        }
+        return null;
+    }
+
+    public String getNombreTramite() {
+        if (this.tramite != null) {
+            return this.tramite.getNombre();
+        }
+        return null;
     }
 
 }

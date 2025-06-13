@@ -5,7 +5,9 @@ import java.util.List;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.agendalc.agendalc.dto.DocumentosTramiteResponse;
 import com.agendalc.agendalc.dto.TramiteRequest;
+import com.agendalc.agendalc.dto.TramiteResponse;
 import com.agendalc.agendalc.entities.Tramite;
 import com.agendalc.agendalc.repositories.TramiteRepository;
 import com.agendalc.agendalc.services.interfaces.TramiteService;
@@ -28,8 +30,24 @@ public class TramiteServiceImpl implements TramiteService {
     }
 
     @Override
-    public List<Tramite> getAllTramites() {
-        return tramiteRepository.findAll();
+    public List<TramiteResponse> getAllTramites() {
+        List<Tramite> tramites = tramiteRepository.findAll();
+
+        return tramites.stream().map(tramite -> {
+            TramiteResponse response = new TramiteResponse();
+            response.setIdTramite(tramite.getIdTramite());
+            response.setNombreTramite(tramite.getNombre());
+            response.setDescripcionTramite(tramite.getDescripcion());
+            response.setPideDocumentos(tramite.isPideDocumentos());
+            response.setRequiereSolicitud(tramite.isRequiereSolicitud());
+
+            List<DocumentosTramiteResponse> documentos = tramite.getDocumentosRequeridos().stream()
+                    .map(doc -> new DocumentosTramiteResponse(doc.getIdDocumento(), doc.getNombreDocumento()))
+                    .toList();
+            response.setDocumentosRequeridos(documentos);
+
+            return response;
+        }).toList();
     }
 
     @Override

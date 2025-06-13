@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.agendalc.agendalc.dto.TramiteRequest;
+import com.agendalc.agendalc.dto.TramiteResponse;
 import com.agendalc.agendalc.entities.Tramite;
 import com.agendalc.agendalc.services.interfaces.TramiteService;
 
@@ -47,7 +48,7 @@ public class TramiteController {
     public ResponseEntity<Object> getAllTramites() {
 
         try {
-            List<Tramite> tramites = tramiteService.getAllTramites();
+            List<TramiteResponse> tramites = tramiteService.getAllTramites();
             return new ResponseEntity<>(tramites, HttpStatus.OK);
 
         } catch (Exception e) {

@@ -8,6 +8,7 @@ import com.agendalc.agendalc.entities.MovimientoSolicitud;
 import com.agendalc.agendalc.entities.ObservacionSolicitud;
 import com.agendalc.agendalc.entities.Solicitud;
 import com.agendalc.agendalc.entities.Solicitud.EstadoSolicitud;
+import com.agendalc.agendalc.repositories.DocumentoSolicitudRepository;
 import com.agendalc.agendalc.repositories.ObservacionSolicitudRepository;
 import com.agendalc.agendalc.repositories.SolicitudRepository;
 import com.agendalc.agendalc.services.interfaces.ObservacionSolicitudService;
@@ -18,11 +19,14 @@ public class ObservacionServiceImpl implements ObservacionSolicitudService {
     private final SolicitudRepository solicitudRepository;
 
     private final ObservacionSolicitudRepository observacionSolicitudRepository;
+    private final DocumentoSolicitudRepository documentoSolicitudRepository;
 
     public ObservacionServiceImpl(SolicitudRepository solicitudRepository,
-            ObservacionSolicitudRepository observacionSolicitudRepository) {
+            ObservacionSolicitudRepository observacionSolicitudRepository,
+            DocumentoSolicitudRepository documentoSolicitudRepository) {
         this.solicitudRepository = solicitudRepository;
         this.observacionSolicitudRepository = observacionSolicitudRepository;
+        this.documentoSolicitudRepository = documentoSolicitudRepository;
     }
 
     @Override
@@ -35,6 +39,16 @@ public class ObservacionServiceImpl implements ObservacionSolicitudService {
 
         MovimientoSolicitud movimiento = new MovimientoSolicitud(solicitud,
                 MovimientoSolicitud.TipoMovimiento.OBSERVACION_AGREGADA, request.getLoginUsuario(), request.getLoginUsuario());
+
+        request.getDocumentosAprobados().forEach((id,aprobado) ->{
+            if (Boolean.TRUE.equals(aprobado)) {
+                documentoSolicitudRepository.findById(id)
+                        .ifPresent(doc -> {
+                            doc.setAprobado(aprobado);
+                            documentoSolicitudRepository.save(doc);
+                        });
+            }
+        });
 
         solicitud.addObservacion(observacion);
         solicitud.addMovimiento(movimiento);

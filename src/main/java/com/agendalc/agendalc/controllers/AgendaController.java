@@ -1,6 +1,7 @@
 package com.agendalc.agendalc.controllers;
 
 import com.agendalc.agendalc.dto.AgendaRequest;
+import com.agendalc.agendalc.dto.AgendaResponse;
 import com.agendalc.agendalc.entities.Agenda;
 import com.agendalc.agendalc.entities.BloqueHorario;
 import com.agendalc.agendalc.services.interfaces.AgendaService;
@@ -42,7 +43,7 @@ public class AgendaController {
     public ResponseEntity<Object> getAllAgendas() {
 
         try {
-            List<Agenda> agendas = agendaService.getAllAgendas();
+            List<AgendaResponse> agendas = agendaService.getAllAgendas();
             return new ResponseEntity<>(agendas, HttpStatus.OK);
 
         } catch (Exception e) {
@@ -85,7 +86,7 @@ public class AgendaController {
             @PathVariable Long idAgenda,
             @RequestBody List<BloqueHorario> bloquesHorarios) {
 
-        Agenda agenda = agendaService.addBloquesAHorario(idAgenda, bloquesHorarios);
+        Agenda agenda = agendaService.addOrUpdateBloquesHorario(idAgenda, bloquesHorarios);
 
         return ResponseEntity.ok(agenda);
     }

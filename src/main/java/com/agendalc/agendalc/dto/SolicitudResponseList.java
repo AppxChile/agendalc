@@ -12,8 +12,27 @@ public class SolicitudResponseList {
     private String nonbre;
     private LocalDate fechaFinalizacion;
     private String estadoSolicitud;
+    private String nombreTramite;
+    private Long idTramite;
     private Set<MovimientosDto> movimientos;
     private Set<ObservacionesDto> observaciones;
+    private Set<DocumentosDto> documentos;
+
+    public String getNombreTramite() {
+        return nombreTramite;
+    }
+
+    public void setNombreTramite(String nombreTramite) {
+        this.nombreTramite = nombreTramite;
+    }
+
+    public Long getIdTramite() {
+        return idTramite;
+    }
+
+    public void setIdTramite(Long idTramite) {
+        this.idTramite = idTramite;
+    }
 
     public String getNonbre() {
         return nonbre;
@@ -85,6 +104,14 @@ public class SolicitudResponseList {
 
     public void setObservaciones(Set<ObservacionesDto> observaciones) {
         this.observaciones = observaciones;
+    }
+
+    public Set<DocumentosDto> getDocumentos() {
+        return documentos;
+    }
+
+    public void setDocumentos(Set<DocumentosDto> documentos) {
+        this.documentos = documentos;
     }
 
 }

@@ -9,6 +9,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.agendalc.agendalc.dto.AgendaRequest;
+import com.agendalc.agendalc.dto.AgendaResponse;
+import com.agendalc.agendalc.dto.BloqueHorarioResponse;
+import com.agendalc.agendalc.dto.DocumentosTramiteResponse;
+import com.agendalc.agendalc.dto.TramiteResponse;
 import com.agendalc.agendalc.entities.Agenda;
 import com.agendalc.agendalc.entities.BloqueHorario;
 import com.agendalc.agendalc.entities.Tramite;
@@ -36,18 +40,20 @@ public class AgendaServiceImpl implements AgendaService {
 
     @Transactional
     @Override
-    public Agenda addBloquesAHorario(Long idAgenda, List<BloqueHorario> bloquesHorarios) {
+    public Agenda addOrUpdateBloquesHorario(Long idAgenda, List<BloqueHorario> bloquesHorarios) {
         Agenda agenda = findById(idAgenda);
 
         if (bloquesHorarios == null || bloquesHorarios.isEmpty()) {
             throw new IllegalArgumentException("La lista de bloques horarios está vacía o es nula");
         }
 
-        Set<BloqueHorario> nuevosBloques = bloquesHorarios.stream()
-                .map(this::getOrCreateBloque)
+        Set<BloqueHorario> bloquesActuales = agenda.getBloquesHorarios();
+
+        Set<BloqueHorario> bloquesActualizados = bloquesHorarios.stream()
+                .map(this::getOrCreateOrUpdateBloque)
                 .collect(Collectors.toSet());
 
-        agenda.getBloquesHorarios().addAll(nuevosBloques);
+        bloquesActuales.addAll(bloquesActualizados);
 
         return agendaRepository.save(agenda);
     }
@@ -59,6 +65,23 @@ public class AgendaServiceImpl implements AgendaService {
                         bloqueRequest.getHoraFin(),
                         bloqueRequest.getCuposDisponibles()))
                 : bloqueHorarioService.findById(bloqueRequest.getIdBloque());
+    }
+
+    private BloqueHorario getOrCreateOrUpdateBloque(BloqueHorario bloqueRequest) {
+        if (bloqueRequest.getIdBloque() == null) {
+            return bloqueHorarioService.save(new BloqueHorario(
+                    bloqueRequest.getHoraInicio(),
+                    bloqueRequest.getHoraFin(),
+                    bloqueRequest.getCuposDisponibles()));
+        } else {
+            BloqueHorario bloqueExistente = bloqueHorarioService.findById(bloqueRequest.getIdBloque());
+
+            bloqueExistente.setHoraInicio(bloqueRequest.getHoraInicio());
+            bloqueExistente.setHoraFin(bloqueRequest.getHoraFin());
+            bloqueExistente.setCuposDisponibles(bloqueRequest.getCuposDisponibles());
+
+            return bloqueHorarioService.save(bloqueExistente);
+        }
     }
 
     @Transactional
@@ -111,8 +134,48 @@ public class AgendaServiceImpl implements AgendaService {
     }
 
     @Override
-    public List<Agenda> getAllAgendas() {
-        return agendaRepository.findAll();
+    public List<AgendaResponse> getAllAgendas() {
+        List<Agenda> agendas = agendaRepository.findAll();
+
+        if (agendas.isEmpty()) {
+            throw new IllegalArgumentException("No se encontraron agendas");
+        }
+
+        return agendas.stream().map(agenda -> {
+            AgendaResponse agendaResponse = new AgendaResponse();
+            agendaResponse.setIdAgenda(agenda.getIdAgenda());
+            agendaResponse.setFechaAgenda(agenda.getFecha());
+
+            TramiteResponse tramiteResponse = new TramiteResponse();
+            tramiteResponse.setIdTramite(agenda.getIdTramite());
+            tramiteResponse.setNombreTramite(agenda.getNombreTramite());
+
+            // Mapear documentos requeridos
+            List<DocumentosTramiteResponse> documentosRequeridos = agenda.getTramite().getDocumentosRequeridos()
+                    .stream().map(documento -> {
+                        DocumentosTramiteResponse dto = new DocumentosTramiteResponse();
+                        dto.setId(documento.getIdDocumento());
+                        dto.setNombre(documento.getNombreDocumento());
+                        return dto;
+                    }).toList();
+
+            tramiteResponse.setDocumentosRequeridos(documentosRequeridos);
+
+            // Mapear bloques horarios
+            List<BloqueHorarioResponse> bloquesHorarios = agenda.getBloquesHorarios().stream().map(bloque -> {
+                BloqueHorarioResponse dto = new BloqueHorarioResponse();
+                dto.setId(bloque.getIdBloque());
+                dto.setHoraFin(bloque.getHoraFin().toString());
+                dto.setHoraInicio(bloque.getHoraInicio().toString());
+                dto.setCuposDisponibles(bloque.getCuposDisponibles());
+                return dto;
+            }).toList();
+
+            agendaResponse.setTramite(tramiteResponse);
+            agendaResponse.setBloqueHorario(bloquesHorarios);
+
+            return agendaResponse;
+        }).toList();
     }
 
     @Transactional

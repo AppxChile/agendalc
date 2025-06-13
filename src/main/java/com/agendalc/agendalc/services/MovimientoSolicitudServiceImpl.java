@@ -55,6 +55,8 @@ public class MovimientoSolicitudServiceImpl implements MovimientoSolicitudServic
             case 4 -> TipoMovimiento.RECHAZO;
             case 5 -> TipoMovimiento.OBSERVACION_AGREGADA;
             case 6 -> TipoMovimiento.FINALIZACION;
+            case 7 -> TipoMovimiento.OBSERVACION_RESPONDIDA;
+            
             default -> throw new IllegalArgumentException("Tipo de movimiento no válido");
         };
     }

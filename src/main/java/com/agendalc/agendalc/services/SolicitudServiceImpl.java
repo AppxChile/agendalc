@@ -2,6 +2,7 @@ package com.agendalc.agendalc.services;
 
 import java.io.IOException;
 import java.nio.file.Path;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -10,6 +11,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.agendalc.agendalc.dto.DocumentosDto;
 import com.agendalc.agendalc.dto.DocumentosSubidosRequest;
 import com.agendalc.agendalc.dto.MovimientoSolicitudRequest;
 import com.agendalc.agendalc.dto.MovimientosDto;
@@ -18,6 +20,7 @@ import com.agendalc.agendalc.dto.PersonaResponse;
 import com.agendalc.agendalc.dto.SolicitudRequest;
 import com.agendalc.agendalc.dto.SolicitudResponse;
 import com.agendalc.agendalc.dto.SolicitudResponseList;
+import com.agendalc.agendalc.entities.DocumentosEliminados;
 import com.agendalc.agendalc.entities.DocumentosSolicitud;
 import com.agendalc.agendalc.entities.DocumentosTramite;
 import com.agendalc.agendalc.entities.MovimientoSolicitud;
@@ -25,6 +28,8 @@ import com.agendalc.agendalc.entities.Solicitud;
 import com.agendalc.agendalc.entities.Tramite;
 import com.agendalc.agendalc.entities.MovimientoSolicitud.TipoMovimiento;
 import com.agendalc.agendalc.entities.Solicitud.EstadoSolicitud;
+import com.agendalc.agendalc.repositories.DocumentoSolicitudRepository;
+import com.agendalc.agendalc.repositories.DocumentosEliminadosRepository;
 import com.agendalc.agendalc.repositories.DocumentosTramiteRepository;
 import com.agendalc.agendalc.repositories.SolicitudRepository;
 import com.agendalc.agendalc.repositories.TramiteRepository;
@@ -44,17 +49,23 @@ public class SolicitudServiceImpl implements SolicitudService {
     private final ArchivoService archivoService;
     private final DocumentosTramiteRepository documentosTramiteRepository;
     private final MovimientoSolicitudService movimientoSolicitudService;
+    private final DocumentoSolicitudRepository documentoSolicitudRepository;
+    private final DocumentosEliminadosRepository documentosEliminadosRepository;
 
     public SolicitudServiceImpl(SolicitudRepository solicitudCitaRepository, ArchivoService archivoService,
             ApiPersonaService apiPersonaService,
             TramiteRepository tramiteRepository, DocumentosTramiteRepository documentosTramiteRepository,
-            MovimientoSolicitudService movimientoSolicitudService) {
+            MovimientoSolicitudService movimientoSolicitudService,
+            DocumentoSolicitudRepository documentoSolicitudRepository,
+            DocumentosEliminadosRepository documentosEliminadosRepository) {
         this.solicitudRepository = solicitudCitaRepository;
         this.apiPersonaService = apiPersonaService;
         this.tramiteRepository = tramiteRepository;
         this.archivoService = archivoService;
         this.documentosTramiteRepository = documentosTramiteRepository;
         this.movimientoSolicitudService = movimientoSolicitudService;
+        this.documentoSolicitudRepository = documentoSolicitudRepository;
+        this.documentosEliminadosRepository = documentosEliminadosRepository;
     }
 
     @Override
@@ -159,11 +170,8 @@ public class SolicitudServiceImpl implements SolicitudService {
 
         solicitud = solicitudRepository.save(solicitud);
 
-        return new SolicitudResponse(
-                solicitud.getIdSolicitud(),
-                tramite.getNombre(),
-                tramite.getIdTramite(),
-                solicitud.getRut());
+        return mapSolicitudResponse(solicitud);
+
     }
 
     private Tramite getTramiteById(Long idTramite) {
@@ -203,6 +211,8 @@ public class SolicitudServiceImpl implements SolicitudService {
                     response.setFechaSolicitud(sol.getFechaSolicitud());
                     response.setRut(sol.getRut());
                     response.setEstadoSolicitud(sol.getEstado().name());
+                    response.setIdTramite(sol.getIdTramite());
+                    response.setNombreTramite(sol.getNombreTramite());
 
                     if (sol.getMovimientos() != null && !sol.getMovimientos().isEmpty()) {
                         response.setMovimientos(sol.getMovimientos().stream()
@@ -229,6 +239,13 @@ public class SolicitudServiceImpl implements SolicitudService {
                         }).collect(Collectors.toSet()));
                     }
 
+                    if (sol.getDocumentosEntregados() != null && !sol.getDocumentosEntregados().isEmpty()) {
+                        response.setDocumentos(sol.getDocumentosEntregados().stream()
+                                .map(doc -> new DocumentosDto(doc.getIdDocumentoSolicitud(), doc.getRutaDocumento(),
+                                        doc.getNombreDocumento(), doc.isAprobado()))
+                                .collect(Collectors.toSet()));
+                    }
+
                     return response;
                 }).toList();
     }
@@ -236,6 +253,115 @@ public class SolicitudServiceImpl implements SolicitudService {
     private Solicitud getSolicitudById(Long idSolicitud) {
         return solicitudRepository.findById(idSolicitud)
                 .orElseThrow(() -> new EntityNotFoundException("Solicitud no encontrada con ID: " + idSolicitud));
+    }
+
+    @Override
+    public List<SolicitudResponseList> getSolicitudesBetweenDatesAndState(LocalDate fechaInicio, LocalDate fechaFin,
+            EstadoSolicitud estadoSolicitud) {
+
+        List<Solicitud> solicitudes = solicitudRepository.findByFechaSolicitudBetweenAndEstado(fechaInicio, fechaFin,
+                estadoSolicitud);
+
+        return mapToSolicitudResponseList(solicitudes);
+    }
+
+    @Override
+    @Transactional
+    public void replaceFile(Long idSolicitud, Long idTipo, MultipartFile file, String loginUsuario) throws IOException {
+
+        Solicitud solicitud = getSolicitudById(idSolicitud);
+
+        DocumentosSolicitud docReplace = documentoSolicitudRepository.findById(idTipo)
+                .orElseThrow(() -> new IllegalArgumentException("Documento no encontrado para la solicitud"));
+
+        DocumentosTramite tipoDocumentoRequerido = getDocumentosTramiteById(
+                docReplace.getDocumentosTramite().getIdDocumento());
+
+        String nombreGuardado = archivoService.guardarArchivo(file);
+        Path rutaCompleta = archivoService.getRutaCompletaArchivo(nombreGuardado);
+
+        solicitud.setEstado(EstadoSolicitud.RESPONDIDA);
+
+        documentosEliminadosRepository.save(new DocumentosEliminados(rutaCompleta.toString(), idSolicitud, idTipo));
+
+        documentoSolicitudRepository.deleteByIdDocumentoSolicitudAndSolicitud(idTipo, solicitud);
+
+        DocumentosSolicitud documento = new DocumentosSolicitud(
+                solicitud,
+                tipoDocumentoRequerido,
+                rutaCompleta.toString());
+
+        solicitud.getDocumentosEntregados().add(documento);
+
+        documento.setSolicitud(solicitud);
+
+        MovimientoSolicitudRequest movimiento = mapMovimientoSolicitudRequest(idSolicitud, 7, loginUsuario,
+                null);
+
+        movimientoSolicitudService.createMovimientoSolicitud(movimiento);
+
+        solicitudRepository.save(solicitud);
+
+    }
+
+    private DocumentosTramite getDocumentosTramiteById(Long idTipo) {
+        return documentosTramiteRepository.findById(idTipo)
+                .orElseThrow(() -> new EntityNotFoundException("Tipo de documento requerido con ID "
+                        + idTipo + " no encontrado."));
+    }
+
+    @Override
+    public SolicitudResponse aprobeSolicitud(Long idSolicitud, String loginUsuario) {
+
+        Solicitud solicitud = getSolicitudById(idSolicitud);
+
+        solicitud.setEstado(EstadoSolicitud.APROBADA);
+
+        MovimientoSolicitudRequest movimiento = mapMovimientoSolicitudRequest(idSolicitud, 6, loginUsuario,
+                null);
+
+        movimientoSolicitudService.createMovimientoSolicitud(movimiento);
+
+        solicitud = solicitudRepository.save(solicitud);
+
+        return mapSolicitudResponse(solicitud);
+
+    }
+
+    @Override
+    public SolicitudResponse rejectSolicitu(Long idSolicitud, String loginUsuario) {
+
+        Solicitud solicitud = getSolicitudById(idSolicitud);
+        solicitud.setEstado(EstadoSolicitud.RECHAZADA);
+        MovimientoSolicitudRequest movimiento = mapMovimientoSolicitudRequest(idSolicitud, 6, loginUsuario,
+                null);
+
+        movimientoSolicitudService.createMovimientoSolicitud(movimiento);
+
+        solicitud = solicitudRepository.save(solicitud);
+
+        return mapSolicitudResponse(solicitud);
+    }
+
+    private SolicitudResponse mapSolicitudResponse(Solicitud solicitud) {
+        return new SolicitudResponse(
+                solicitud.getIdSolicitud(),
+                solicitud.getTramite().getNombre(),
+                solicitud.getTramite().getIdTramite(),
+                solicitud.getRut(),
+                solicitud.getEstado().toString());
+    }
+
+    @Override
+    public void delteSolicitud(Long idSolicitud) {
+
+        if (!solicitudRepository.findById(idSolicitud).isPresent()) {
+            throw new EntityNotFoundException("Solicitud no encontrada con ID: " + idSolicitud);
+
+        }
+
+        solicitudRepository.deleteById(idSolicitud);
+
     }
 
 }

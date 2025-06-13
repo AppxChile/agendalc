@@ -6,15 +6,19 @@ public class SolicitudResponse {
     private String nombreTramites;
     private Long idTramite;
     private Integer rut;
+    private String estado;
+
+    
 
     public SolicitudResponse() {
     }
 
-    public SolicitudResponse(Long idSolicitud, String nombreTramites, Long idTramite, Integer rut) {
+    public SolicitudResponse(Long idSolicitud, String nombreTramites, Long idTramite, Integer rut, String estado) {
         this.idSolicitud = idSolicitud;
         this.nombreTramites = nombreTramites;
         this.idTramite = idTramite;
         this.rut = rut;
+        this.estado = estado;
     }
 
     public Long getIdSolicitud() {
@@ -47,6 +51,14 @@ public class SolicitudResponse {
 
     public void setRut(Integer rut) {
         this.rut = rut;
+    }
+
+    public String getEstado() {
+        return estado;
+    }
+
+    public void setEstado(String estado) {
+        this.estado = estado;
     }
 
 }

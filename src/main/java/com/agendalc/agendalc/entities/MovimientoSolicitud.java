@@ -35,6 +35,7 @@ public class MovimientoSolicitud {
         RECHAZO,
         OBSERVACION_AGREGADA, // Un movimiento genérico para cuando se añade una observación
         FINALIZACION,
+        OBSERVACION_RESPONDIDA
         // Otros tipos que consideres necesarios
     }
 

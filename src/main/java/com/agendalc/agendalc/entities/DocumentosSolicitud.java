@@ -75,4 +75,8 @@ public class DocumentosSolicitud {
         this.aprobado = aprobado;
     }
 
+    public String getNombreDocumento() {
+        return documentosTramite.getNombreDocumento();
+    }
+
 }
