@@ -25,5 +25,6 @@ public interface SolicitudRepository extends JpaRepository<Solicitud, Long> {
     List<Solicitud> findByFechaSolicitudBetweenAndEstado(LocalDate fechaInicio, LocalDate fechaFin,
             Solicitud.EstadoSolicitud estado);
 
-    
+    List<Solicitud> findByFechaSolicitudBetween(LocalDate fechaInicio, LocalDate fechaFin);
+
 }

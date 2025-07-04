@@ -259,8 +259,11 @@ public class SolicitudServiceImpl implements SolicitudService {
     public List<SolicitudResponseList> getSolicitudesBetweenDatesAndState(LocalDate fechaInicio, LocalDate fechaFin,
             EstadoSolicitud estadoSolicitud) {
 
-        List<Solicitud> solicitudes = solicitudRepository.findByFechaSolicitudBetweenAndEstado(fechaInicio, fechaFin,
-                estadoSolicitud);
+        List<Solicitud> solicitudes = solicitudRepository.findByFechaSolicitudBetween(fechaInicio, fechaFin).stream()
+                .filter(s -> EstadoSolicitud.PENDIENTE.equals(estadoSolicitud)
+                        ? EstadoSolicitud.PENDIENTE.equals(s.getEstado())
+                        : !EstadoSolicitud.PENDIENTE.equals(s.getEstado()))
+                .toList();
 
         return mapToSolicitudResponseList(solicitudes);
     }

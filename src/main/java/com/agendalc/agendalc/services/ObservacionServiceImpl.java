@@ -38,17 +38,18 @@ public class ObservacionServiceImpl implements ObservacionSolicitudService {
                 request.getLoginUsuario());
 
         MovimientoSolicitud movimiento = new MovimientoSolicitud(solicitud,
-                MovimientoSolicitud.TipoMovimiento.OBSERVACION_AGREGADA, request.getLoginUsuario(), request.getLoginUsuario());
+                MovimientoSolicitud.TipoMovimiento.OBSERVACION_AGREGADA, request.getLoginUsuario(),
+                request.getLoginUsuario());
 
-        request.getDocumentosAprobados().forEach((id,aprobado) ->{
-            if (Boolean.TRUE.equals(aprobado)) {
-                documentoSolicitudRepository.findById(id)
-                        .ifPresent(doc -> {
-                            doc.setAprobado(aprobado);
-                            documentoSolicitudRepository.save(doc);
-                        });
-            }
-        });
+        request.getDocumentosAprobados().forEach((id, aprobado) ->
+
+        documentoSolicitudRepository.findById(id)
+                .ifPresent(doc -> {
+                    doc.setAprobado(aprobado);
+                    documentoSolicitudRepository.save(doc);
+                })
+
+        );
 
         solicitud.addObservacion(observacion);
         solicitud.addMovimiento(movimiento);

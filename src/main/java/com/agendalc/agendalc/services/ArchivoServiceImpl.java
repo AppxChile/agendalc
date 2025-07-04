@@ -14,11 +14,11 @@ import com.agendalc.agendalc.config.AppProperties;
 import com.agendalc.agendalc.services.interfaces.ArchivoService;
 
 @Service
-public class ArvhivoServiceImpl implements ArchivoService {
+public class ArchivoServiceImpl implements ArchivoService {
 
     private final String uploadDir;
 
-    public ArvhivoServiceImpl(AppProperties appProperties) {
+    public ArchivoServiceImpl(AppProperties appProperties) {
         this.uploadDir = appProperties.getUploadDir();
     }
 
