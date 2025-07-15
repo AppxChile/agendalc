@@ -23,6 +23,7 @@ import com.agendalc.agendalc.services.interfaces.ApiMailService;
 import com.agendalc.agendalc.services.interfaces.ApiPersonaService;
 import com.agendalc.agendalc.services.interfaces.BloqueHorarioService;
 import com.agendalc.agendalc.services.interfaces.CitaService;
+import com.agendalc.agendalc.utils.RepositoryUtils;
 
 import jakarta.persistence.EntityNotFoundException;
 
@@ -101,8 +102,9 @@ public class CitaServiceImpl implements CitaService {
 
     @Override
     public Cita findById(Long id) {
-        return citaRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("No existe el id"));
+        return RepositoryUtils.findOrThrow(citaRepository.findById(id),
+                String.format("No se encontro la cita %d ", id));
+
     }
 
     @Override

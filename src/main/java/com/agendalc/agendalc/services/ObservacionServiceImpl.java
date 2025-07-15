@@ -12,6 +12,7 @@ import com.agendalc.agendalc.repositories.DocumentoSolicitudRepository;
 import com.agendalc.agendalc.repositories.ObservacionSolicitudRepository;
 import com.agendalc.agendalc.repositories.SolicitudRepository;
 import com.agendalc.agendalc.services.interfaces.ObservacionSolicitudService;
+import com.agendalc.agendalc.utils.RepositoryUtils;
 
 @Service
 public class ObservacionServiceImpl implements ObservacionSolicitudService {
@@ -60,8 +61,9 @@ public class ObservacionServiceImpl implements ObservacionSolicitudService {
     }
 
     private Solicitud getSolicitud(Long idSolicitud) {
-        return solicitudRepository.findById(idSolicitud)
-                .orElseThrow(() -> new IllegalArgumentException("Solicitud no encontrada"));
+        return RepositoryUtils.findOrThrow(solicitudRepository.findById(idSolicitud),
+                String.format("No se encontró la solicitud %d", idSolicitud));
+
     }
 
     private Solicitud changeStateSolicitud(Solicitud solicitud) {
@@ -79,8 +81,10 @@ public class ObservacionServiceImpl implements ObservacionSolicitudService {
     }
 
     private ObservacionSolicitud getObservacion(Long idObservacion) {
-        return observacionSolicitudRepository.findById(idObservacion)
-                .orElseThrow(() -> new IllegalArgumentException("Observacion no encontrada"));
+
+        return RepositoryUtils.findOrThrow(observacionSolicitudRepository.findById(idObservacion),
+                String.format("No se encontró la observacion %d", idObservacion));
+
     }
 
 }

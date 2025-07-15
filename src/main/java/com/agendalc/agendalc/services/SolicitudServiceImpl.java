@@ -37,6 +37,7 @@ import com.agendalc.agendalc.services.interfaces.ApiPersonaService;
 import com.agendalc.agendalc.services.interfaces.ArchivoService;
 import com.agendalc.agendalc.services.interfaces.MovimientoSolicitudService;
 import com.agendalc.agendalc.services.interfaces.SolicitudService;
+import com.agendalc.agendalc.utils.RepositoryUtils;
 
 import jakarta.persistence.EntityNotFoundException;
 
@@ -175,8 +176,8 @@ public class SolicitudServiceImpl implements SolicitudService {
     }
 
     private Tramite getTramiteById(Long idTramite) {
-        return tramiteRepository.findById(idTramite)
-                .orElseThrow(() -> new IllegalArgumentException("Trámite no encontrado"));
+        return RepositoryUtils.findOrThrow(tramiteRepository.findById(idTramite),
+                String.format("No se encontró el tramite %d", idTramite));
     }
 
     private MovimientoSolicitud firstMovement(Solicitud solicitud, TipoMovimiento tipo) {
@@ -251,8 +252,9 @@ public class SolicitudServiceImpl implements SolicitudService {
     }
 
     private Solicitud getSolicitudById(Long idSolicitud) {
-        return solicitudRepository.findById(idSolicitud)
-                .orElseThrow(() -> new EntityNotFoundException("Solicitud no encontrada con ID: " + idSolicitud));
+
+        return RepositoryUtils.findOrThrow(solicitudRepository.findById(idSolicitud),
+                String.format("No se encontró la solicitud %d", idSolicitud));
     }
 
     @Override
@@ -274,8 +276,8 @@ public class SolicitudServiceImpl implements SolicitudService {
 
         Solicitud solicitud = getSolicitudById(idSolicitud);
 
-        DocumentosSolicitud docReplace = documentoSolicitudRepository.findById(idTipo)
-                .orElseThrow(() -> new IllegalArgumentException("Documento no encontrado para la solicitud"));
+        DocumentosSolicitud docReplace = RepositoryUtils.findOrThrow(documentoSolicitudRepository.findById(idTipo),
+                String.format("Documento tipo %d no encontrado para la solicitud", idTipo));
 
         DocumentosTramite tipoDocumentoRequerido = getDocumentosTramiteById(
                 docReplace.getDocumentosTramite().getIdDocumento());

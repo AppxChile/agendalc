@@ -10,6 +10,7 @@ import org.springframework.transaction.annotation.Transactional;
 import com.agendalc.agendalc.entities.BloqueHorario;
 import com.agendalc.agendalc.repositories.BloqueHorarioRepository;
 import com.agendalc.agendalc.services.interfaces.BloqueHorarioService;
+import com.agendalc.agendalc.utils.RepositoryUtils;
 
 @Service
 public class BloqueHorarioServiceImpl implements BloqueHorarioService {
@@ -32,8 +33,9 @@ public class BloqueHorarioServiceImpl implements BloqueHorarioService {
 
     @Override
     public BloqueHorario getBloqueHorarioById(Long id) {
-        return bloqueHorarioRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("Bloque horario no encontrado con ID: " + id));
+        return RepositoryUtils.findOrThrow(bloqueHorarioRepository.findById(id),
+                String.format("No se encontro el bloque hroario %d", id));
+
     }
 
     @Transactional
@@ -61,8 +63,10 @@ public class BloqueHorarioServiceImpl implements BloqueHorarioService {
 
     @Override
     public BloqueHorario findById(Long id) {
-        return bloqueHorarioRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Bloque horario no encontrado"));
+
+        return RepositoryUtils.findOrThrow(bloqueHorarioRepository.findById(id),
+                String.format("No se encontro el bloque horario %d", id));
+
     }
 
     @Override

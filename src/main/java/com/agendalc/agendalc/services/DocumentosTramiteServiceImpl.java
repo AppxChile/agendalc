@@ -9,6 +9,7 @@ import com.agendalc.agendalc.entities.Tramite;
 import com.agendalc.agendalc.repositories.DocumentosTramiteRepository;
 import com.agendalc.agendalc.repositories.TramiteRepository;
 import com.agendalc.agendalc.services.interfaces.DocumentosTramiteService;
+import com.agendalc.agendalc.utils.RepositoryUtils;
 
 @Service
 public class DocumentosTramiteServiceImpl implements DocumentosTramiteService {
@@ -43,8 +44,10 @@ public class DocumentosTramiteServiceImpl implements DocumentosTramiteService {
     }
 
     private Tramite getTramiteById(Long id) {
-        return tramiteRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("No existe el tramite con el id " + id));
+
+        return RepositoryUtils.findOrThrow(tramiteRepository.findById(id),
+                String.format("No se encontró el trámite con el id %d", id));
+
     }
 
 }
